@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
-import { ArrowRight, ChevronRight, Edit, Trash } from "lucide-react";
+import { Edit, Trash } from "lucide-react";
 
 import InputTextField from "./products/InputTextField";
 
