@@ -80,7 +80,7 @@ router.put("/update/:id", upload.single("image"), async (req, res) => {
       .json({ success: false, error: "Name or image must be provided" });
   }
 
-  
+  /// 
   try {
     // Находим категорию по ID
     const category = await Category.findById(id);
