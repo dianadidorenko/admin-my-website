@@ -91,8 +91,6 @@ router.delete("/remove/:id", async (req, res) => {
         .json({ success: false, msg: "Category not found" });
     }
 
-    console.log("Cloudinary Config:", cloudinary.config());
-
     const publicId = `categories/${
       category.image.split("/").pop().split(".")[0]
     }`;
