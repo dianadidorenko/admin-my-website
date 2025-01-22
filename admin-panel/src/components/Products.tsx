@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { Edit, Trash } from "lucide-react";
+import { config } from "../../config";
 
 import InputTextField from "./products/InputTextField";
 
@@ -47,13 +48,6 @@ const Products = () => {
     Record<string, boolean>
   >({});
 
-  const toggleDesc = (productId: string) => {
-    setProductDescriptions((prev) => ({
-      ...prev,
-      [productId]: !prev[productId], // Переключаем состояние: если было true — станет false и наоборот
-    }));
-  };
-
   // ДЛЯ ОДНОГО ФОТО
   // const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
   //   if (e.target.files) {
@@ -74,13 +68,21 @@ const Products = () => {
     }
   };
 
+  // Функционал переключения видимости описания товара
+  const toggleDesc = (productId: string) => {
+    setProductDescriptions((prev) => ({
+      ...prev,
+      [productId]: !prev[productId],
+    }));
+  };
+
   // Функционал смены инфо об объеме и цене
   const handleVolumeSelect = (productId: string, index: number) => {
     setSelectedVolumes((prev) => ({
       ...prev,
       [productId]: index,
     }));
-  };
+  }; 
 
   const getSelectedVolume = (productId: string) => {
     const product = products.find((p) => p._id === productId);
@@ -229,9 +231,7 @@ const Products = () => {
   // Функционал получения всех товара
   const getProducts = async () => {
     try {
-      const response = await axios.get(
-        `${import.meta.env.VITE_BASE_URL}/products`
-      );
+      const response = await axios.get(`${config?.baseUrl}/products`);
 
       if (response.data.success) {
         setProducts(response.data.data);

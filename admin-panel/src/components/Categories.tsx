@@ -3,6 +3,7 @@ import { Trash, Edit } from "lucide-react";
 import { useDropzone } from "react-dropzone";
 import axios from "axios";
 import toast from "react-hot-toast";
+import { config } from "../../config";
 
 interface Category {
   _id: string;
@@ -112,9 +113,7 @@ const Categories = () => {
 
   const getCategories = async () => {
     try {
-      const response = await axios.get(
-        `${import.meta.env.VITE_BASE_URL}/categories`
-      );
+      const response = await axios.get(`${config?.baseUrl}/categories`);
 
       if (response.data.success) {
         setCategories(response.data.data);
