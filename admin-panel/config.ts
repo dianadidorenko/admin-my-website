@@ -2,23 +2,10 @@ interface Config {
   baseUrl: string;
 }
 
-const checkConfig = (server: string): Config | {} => {
-  let config: Config | {} = {};
-  switch (server) {
-    case "production":
-      config = { baseUrl: "https://admin-my-website.vercel.app/" };
-      break;
-    case "local":
-      config = {
-        baseUrl: "http://localhost:8000",
-      };
-      break;
-    default:
-      break;
-  }
-  return config;
+const configs = {
+  production: { baseUrl: "https://admin-my-website.vercel.app/" },
+  local: { baseUrl: "http://localhost:8000" },
 };
 
-export const selectServer = "production";
-// export const selectServer = "local";
-export const config = checkConfig(selectServer) as Config;
+const environment = "production"; // Укажите "local" для локальной разработки
+export const config: Config = configs[environment];
