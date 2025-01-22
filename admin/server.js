@@ -2,9 +2,6 @@ const express = require("express");
 const cors = require("cors");
 const fileUpload = require("express-fileupload");
 const app = express();
-const { fileURLToPath } = require("url");
-const path = require("path");
-const { readdirSync } = require("fs");
 
 const connectDB = require("./config/db");
 require("dotenv").config();
@@ -15,13 +12,6 @@ const productRoutes = require("./routes/productRoutes");
 
 app.use(cors({ origin: "*" }));
 app.use(express.json());
-
-const routesPath = path.resolve(__dirname, "./routes");
-const routeFiles = readdirSync(routesPath);
-routeFiles.forEach((file) => {
-  const routeModule = require(`./routes/${file}`);
-  app.use("/", routeModule);
-});
 
 app.use(
   fileUpload({
