@@ -4,8 +4,7 @@ interface Config {
 
 const configs = {
   production: {
-    baseUrl:
-      "https://admin-my-website-qqnzmn8d9-dianadidorenkos-projects.vercel.app",
+    baseUrl: "https://admin-my-website.vercel.app",
   },
   local: { baseUrl: "http://localhost:8000" },
 };
