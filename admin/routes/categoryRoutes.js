@@ -1,35 +1,8 @@
 const express = require("express");
 const Category = require("../models/Category");
-const path = require("path");
-const fs = require("fs/promises");
-const multer = require("multer");
+const cloudinary = require("../config/cloudinary");
 
 const router = express.Router();
-
-// Проверяем, существует ли папка uploads, если нет, создаем её
-const UPLOAD_DIR = path.join(__dirname, "../uploads");
-fs.mkdir(UPLOAD_DIR, { recursive: true }).catch(console.error);
-
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, "uploads/"); // Путь для сохранения файлов
-  },
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + path.extname(file.originalname)); // Генерация уникального имени
-  },
-});
-
-// Настройка multer с проверкой формата файлов
-const upload = multer({
-  storage: storage, // Используется для настройки хранения файлов
-  dest: UPLOAD_DIR, // Путь для сохранения файлов, указанный через переменную UPLOAD_DIR
-  fileFilter: (req, file, cb) => {
-    if (!file.mimetype.startsWith("image/")) {
-      return cb(new Error("Only image files are allowed!"), false);
-    }
-    cb(null, true);
-  },
-});
 
 // Получение всех категорий
 router.get("/", async (req, res) => {
@@ -43,61 +16,58 @@ router.get("/", async (req, res) => {
 });
 
 // Добавление новой категории с изображением
-router.post("/add", upload.single("image"), async (req, res) => {
+router.post("/add", async (req, res) => {
   const { name } = req.body;
-  const image = req.file ? `/uploads/${req.file.filename}` : null;
+  const image = req.files?.image;
 
-  if (!name || !image) {
+  if (!name || !image || !image.tempFilePath) {
     return res
       .status(400)
-      .json({ success: false, error: "Name and image are required" });
+      .json({ success: false, error: "Invalid input data" });
   }
 
   try {
-    // Создаем категорию с изображением
-    const category = await Category.create({ name, image });
+    const result = await cloudinary.uploader.upload(image.tempFilePath, {
+      folder: "categories",
+      public_id: `${Date.now()}-${name}`,
+    });
 
+    const category = await Category.create({ name, image: result.secure_url });
     res.json({
       success: true,
       msg: "Category successfully created",
       data: category,
     });
   } catch (error) {
-    console.error("Error creating category:", error.message);
+    console.error("Error adding category:", error.message);
     res.status(500).json({ success: false, error: error.message });
   }
 });
 
 // Обновление категории
-router.put("/update/:id", upload.single("image"), async (req, res) => {
+router.put("/update/:id", async (req, res) => {
   const { id } = req.params;
   const { name } = req.body;
-  const image = req.file ? `/uploads/${req.file.filename}` : null;
+  const image = req.files?.image;
 
-  if (!name && !image) {
-    return res
-      .status(400)
-      .json({ success: false, error: "Name or image must be provided" });
-  }
-
-  /// 
   try {
-    // Находим категорию по ID
     const category = await Category.findById(id);
-
     if (!category) {
       return res
         .status(404)
         .json({ success: false, msg: "Category not found" });
     }
 
-    // Обновляем имя и/или изображение категории
     if (name) category.name = name;
-    if (image) category.image = image;
+    if (image) {
+      const result = await cloudinary.uploader.upload(image.tempFilePath, {
+        folder: "categories",
+        public_id: `${Date.now()}-${name}`,
+      });
+      category.image = result.secure_url;
+    }
 
-    // Сохраняем изменения
     await category.save();
-
     res.json({
       success: true,
       msg: "Category successfully updated",
@@ -114,25 +84,21 @@ router.delete("/remove/:id", async (req, res) => {
   const { id } = req.params;
 
   try {
-    const deletedCategory = await Category.findByIdAndDelete(id);
-
-    if (!deletedCategory) {
+    const category = await Category.findById(id);
+    if (!category) {
       return res
         .status(404)
         .json({ success: false, msg: "Category not found" });
     }
 
-    // Удаляем все изображения
-    for (const image of deletedCategory.image) {
-      const imagePath = path.join(UPLOAD_DIR, path.basename(image));
-      try {
-        await fs.unlink(imagePath);
-        console.log("Image successfully deleted:", imagePath);
-      } catch (err) {
-        console.warn("Image file not found:", imagePath);
-      }
-    }
+    console.log("Cloudinary Config:", cloudinary.config());
 
+    const publicId = `categories/${
+      category.image.split("/").pop().split(".")[0]
+    }`;
+    await cloudinary.uploader.destroy(publicId);
+
+    await Category.findByIdAndDelete(id);
     res.json({ success: true, msg: "Category successfully deleted" });
   } catch (error) {
     console.error("Error deleting category:", error.message);

@@ -35,6 +35,10 @@ const Products = () => {
     { volume: string; price: string; weight: string }[]
   >([{ volume: "", price: "", weight: "" }]);
   const [purpose, setPurpose] = useState<string[]>([""]);
+  // ДЛЯ ОДНОГО ФОТО
+  // const [images setImage] = useState<File | null>(null);
+  // const [previewImage, setPreviewImage] = useState<string>("");
+  //  ДЛЯ НЕСКОЛЬКИХ ФОТО
   const [images, setImages] = useState<File[]>([]);
   const [previewImages, setPreviewImages] = useState<string[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
@@ -50,11 +54,10 @@ const Products = () => {
 
   // ДЛЯ ОДНОГО ФОТО
   // const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  //   if (e.target.files) {
-  //     const file = e.target.files[0]; // Берем только одно изображение
-  //     setImages([file]); // Сохраняем файл в состояние
-  //     const preview = URL.createObjectURL(file); // Создаем URL для предпросмотра
-  //     setPreviewImages([preview]); // Сохраняем URL для отображения
+  //   if (e.target.files && e.target.files[0]) {
+  //     const file = e.target.files[0];
+  //     setImage(file);
+  //     setPreviewImage(URL.createObjectURL(file));
   //   }
   // };
 
@@ -63,9 +66,13 @@ const Products = () => {
     if (e.target.files) {
       const files = Array.from(e.target.files); // Получаем массив файлов
       setImages(files); // Сохраняем файлы в состоянии
-      const previews = files.map((file) => URL.createObjectURL(file)); // Создаем URL для каждого файла
-      setPreviewImages(previews); // Сохраняем URL для отображения
+      setPreviewImages(files.map((file) => URL.createObjectURL(file)));
     }
+  };
+
+  const handleRemoveImage = (index: number) => {
+    setPreviewImages((prev) => prev.filter((_, i) => i !== index));
+    setImages((prev) => prev.filter((_, i) => i !== index));
   };
 
   // Функционал переключения видимости описания товара
@@ -82,7 +89,7 @@ const Products = () => {
       ...prev,
       [productId]: index,
     }));
-  }; 
+  };
 
   const getSelectedVolume = (productId: string) => {
     const product = products.find((p) => p._id === productId);
@@ -97,17 +104,16 @@ const Products = () => {
 
   const handleVolumeChange = (
     index: number,
-    key: "volume" | "price" | "weight",
+    field: keyof Volume,
     value: string
   ) => {
-    const updatedVolumes = [...volumes];
-    updatedVolumes[index][key] = value;
-    setVolumes(updatedVolumes);
+    setVolumes((prev) =>
+      prev.map((item, i) => (i === index ? { ...item, [field]: value } : item))
+    );
   };
 
   const handleRemoveVolume = (index: number) => {
-    const updatedVolumes = volumes.filter((_, i) => i !== index);
-    setVolumes(updatedVolumes);
+    setVolumes((prev) => prev.filter((_, i) => i !== index));
   };
 
   // Функционал добавления назначений товара
@@ -117,15 +123,12 @@ const Products = () => {
 
   // Функционал редактирования назначений товара
   const handlePurposeChange = (index: number, value: string) => {
-    const updatedPurpose = [...purpose];
-    updatedPurpose[index] = value;
-    setPurpose(updatedPurpose);
+    setPurpose((prev) => prev.map((item, i) => (i === index ? value : item)));
   };
 
   // Функционал удаления назначений товара
   const handleRemovePurpose = (index: number) => {
-    const updatedPurpose = purpose.filter((_, i) => i !== index);
-    setPurpose(updatedPurpose);
+    setPurpose((prev) => prev.filter((_, i) => i !== index));
   };
 
   // Функционал сбросы формы товара после создания или редактирования товара
@@ -146,55 +149,45 @@ const Products = () => {
   const handleProductSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!name || !brand || !description || !country || volumes.length === 0) {
-      toast.error("Пожалуйста, заполните все поля.");
-      return;
+    if (!editMode) {
+      if (!name || !brand || !description || !country || volumes.length === 0) {
+        toast.error("Пожалуйста, заполните все поля.");
+        return;
+      }
     }
 
     setIsLoading(true);
 
-    const formData = new FormData();
-    formData.append("name", name);
-    formData.append("brand", brand);
-    formData.append("description", description);
-    formData.append("country", country);
-    formData.append("volumes", JSON.stringify(volumes));
-    formData.append("purpose", JSON.stringify(purpose));
-
-    // formData.append("image", images[0]);
-
-    images.forEach((image) => {
-      formData.append("images", image);
-    });
-
     try {
-      let response;
+      const formData = new FormData();
+      formData.append("name", name);
+      formData.append("brand", brand);
+      formData.append("description", description);
+      formData.append("country", country);
+      formData.append("volumes", JSON.stringify(volumes));
+      formData.append("purpose", JSON.stringify(purpose));
+      images.forEach((image) => formData.append("images", image));
+      // if (image) formData.append("image", image);
 
-      if (editMode) {
-        response = await axios.put(
-          `${
-            import.meta.env.VITE_BASE_URL
-          }/products/update/${currentProductId}`,
-          formData,
-          { headers: { "Content-Type": "multipart/form-data" } }
-        );
-        toast.success("Товар успешно обновлен");
-        setEditMode(false);
-      } else {
-        response = await axios.post(
-          `${import.meta.env.VITE_BASE_URL}/products/add`,
-          formData,
-          { headers: { "Content-Type": "multipart/form-data" } }
-        );
+      const url = editMode
+        ? `${config.baseUrl}/products/update/${currentProductId}`
+        : `${config.baseUrl}/products/add`;
 
-        if (response.data.success) {
-          toast.success(
-            editMode ? "Товар успешно обновлен." : "Товар успешно создан."
-          );
-        }
+      const response = await axios({
+        method: editMode ? "put" : "post",
+        url,
+        data: formData,
+      });
+
+      if (response.data.success) {
+        toast.success(
+          editMode
+            ? "Категория успешно обновлена."
+            : "Категория успешно создана."
+        );
+        resetForm();
+        getProducts();
       }
-      resetForm();
-      getProducts();
     } catch (error) {
       toast.error("Ошибка при обработке товара.");
       console.error("Ошибка:", error);
@@ -219,9 +212,7 @@ const Products = () => {
   // Функционал удаления товара
   const handleDeleteProduct = async (productId: string) => {
     try {
-      await axios.delete(
-        `${import.meta.env.VITE_BASE_URL}/products/delete/${productId}`
-      );
+      await axios.delete(`${config.baseUrl}/products/remove/${productId}`);
       getProducts();
     } catch (error) {
       console.error("Ошибка удаления товара:", error);
@@ -423,12 +414,7 @@ const Products = () => {
                 />
                 <button
                   type="button"
-                  onClick={() => {
-                    setPreviewImages((prev) =>
-                      prev.filter((_, i) => i !== index)
-                    );
-                    setImages((prev) => prev.filter((_, i) => i !== index));
-                  }}
+                  onClick={() => handleRemoveImage(index)}
                   className="absolute top-1 right-1 bg-red-500 text-white text-sm px-2 py-1 rounded-full"
                 >
                   ✕

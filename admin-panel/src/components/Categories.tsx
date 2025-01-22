@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { Trash, Edit } from "lucide-react";
-import { useDropzone } from "react-dropzone";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { config } from "../../config";
@@ -14,102 +13,13 @@ interface Category {
 const Categories = () => {
   const [categoryName, setCategoryName] = useState<string>("");
   const [categories, setCategories] = useState<Category[]>([]);
-  const [uploadedImage, setUploadedImage] = useState<File | null>(null);
-  const [oldImage, setOldImage] = useState<string | null>(null);
+  const [image, setImage] = useState<File | null>(null);
+  const [previewImage, setPreviewImage] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
-  const [isUploading, setIsUploading] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [currentCategoryId, setCurrentCategoryId] = useState<string | null>(
     null
   );
-
-  const handleCategorySubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!categoryName && !uploadedImage && !oldImage) {
-      toast.error("Пожалуйста, заполните все поля.");
-      return;
-    }
-
-    setIsLoading(true);
-
-    const formData = new FormData();
-    formData.append("name", categoryName);
-    if (uploadedImage) {
-      formData.append("image", uploadedImage);
-    } else if (oldImage) {
-      formData.append("image", oldImage);
-    }
-
-    try {
-      let response;
-      if (editMode) {
-        // Обновление категории
-        response = await axios.put(
-          `${
-            import.meta.env.VITE_BASE_URL
-          }/categories/update/${currentCategoryId}`,
-          formData,
-          { headers: { "Content-Type": "multipart/form-data" } }
-        );
-      } else {
-        // Создание новой категории
-        response = await axios.post(
-          `${import.meta.env.VITE_BASE_URL}/categories/add`,
-          formData,
-          { headers: { "Content-Type": "multipart/form-data" } }
-        );
-      }
-
-      if (response.data.success) {
-        toast.success(
-          editMode
-            ? "Категория успешно обновлена."
-            : "Категория успешно создана."
-        );
-        setCategoryName("");
-        setUploadedImage(null);
-        setOldImage(null);
-        setEditMode(false);
-        getCategories();
-      }
-    } catch (error) {
-      toast.error("Ошибка при обработке категории.");
-      console.error("Ошибка:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleDeleteCategory = async (id: string) => {
-    try {
-      const response = await axios.delete(
-        `${import.meta.env.VITE_BASE_URL}/categories/remove/${id}`
-      );
-
-      if (response.data.success) {
-        getCategories();
-        toast.success("Категория успешно удалена");
-      } else {
-        toast.error("Ошибка при удалении категории");
-      }
-    } catch (error) {
-      toast.error("Ошибка при удалении категории");
-      console.error("Ошибка:", error);
-    }
-  };
-
-  const handleEditCategory = async (id: string) => {
-    setEditMode(true);
-    setCurrentCategoryId(id);
-
-    const category = categories.find((cat) => cat._id === id);
-    if (category) {
-      setCategoryName(category.name);
-      setOldImage(category.image);
-      setUploadedImage(null);
-    }
-  };
 
   const getCategories = async () => {
     try {
@@ -126,28 +36,90 @@ const Categories = () => {
     }
   };
 
+  // Обработчик выбора изображения
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setImage(file);
+      setPreviewImage(URL.createObjectURL(file));
+    }
+  };
+
+  // Сброс состояния формы
+  const resetForm = () => {
+    setCategoryName("");
+    setImage(null);
+    setPreviewImage("");
+    setEditMode(false);
+    setCurrentCategoryId(null);
+  };
+
+  const handleCategorySubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!editMode) {
+      if (!categoryName || !image) {
+        toast.error("Пожалуйста, заполните все поля.");
+        return;
+      }
+    }
+
+    setIsLoading(true);
+
+    try {
+      const formData = new FormData();
+      if (categoryName) formData.append("name", categoryName);
+      if (image) formData.append("image", image);
+
+      const url = editMode
+        ? `${config.baseUrl}/categories/update/${currentCategoryId}`
+        : `${config.baseUrl}/categories/add`;
+
+      const response = editMode
+        ? await axios.put(url, formData)
+        : await axios.post(url, formData);
+
+      if (response.data.success) {
+        toast.success(
+          editMode
+            ? "Категория успешно обновлена."
+            : "Категория успешно создана."
+        );
+        resetForm();
+        getCategories();
+      }
+    } catch (error) {
+      toast.error("Ошибка при обработке категории.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleDeleteCategory = async (id: string) => {
+    try {
+      const response = await axios.delete(
+        `${config.baseUrl}/categories/remove/${id}`
+      );
+      if (response.data.success) {
+        toast.success("Категория успешно удалена.");
+        getCategories();
+      }
+    } catch (error) {
+      console.error("Ошибка при удалении категории:", error);
+      toast.error("Ошибка при удалении категории.");
+    }
+  };
+
+  const handleEditCategory = (category: Category) => {
+    setEditMode(true);
+    setCurrentCategoryId(category._id);
+    setCategoryName(category.name);
+    setPreviewImage(category.image);
+  };
+
   useEffect(() => {
     getCategories();
   }, []);
-
-  const onDrop = async (acceptedFiles: File[]) => {
-    setIsUploading(true);
-
-    if (acceptedFiles.length > 1) {
-      toast.error("Можно загрузить только одно изображение.");
-      setIsUploading(false);
-      return;
-    }
-
-    setUploadedImage(acceptedFiles[0]);
-    setIsUploading(false);
-  };
-
-  const { getRootProps, getInputProps } = useDropzone({
-    onDrop,
-    accept: { "image/*": [] },
-    multiple: false,
-  });
 
   return (
     <div className="mx-auto p-4">
@@ -161,17 +133,16 @@ const Categories = () => {
         <div className="flex gap-4 flex-col sm:flex-row">
           <input
             type="text"
+            name="categoryName"
             id="categoryName"
-            name="name"
             value={categoryName}
             onChange={(e) => setCategoryName(e.target.value)}
             className="w-full sm:w-[50%] p-2 border border-gray-300 rounded-md"
             required
           />
-
           <button
             type="submit"
-            className="w-full sm:w-[50%] py-2 border border-gray-400 text-white rounded-md hover:border-white duration-300"
+            className="w-full sm:w-[50%] py-2 border border-gray-400 text-white rounded-md hover:border-white transition duration-300"
             disabled={isLoading}
           >
             {isLoading
@@ -182,76 +153,60 @@ const Categories = () => {
           </button>
         </div>
 
-        <div className="space-y-4">
-          <div className="space-y-4">
-            {uploadedImage && (
-              <div className="mb-4 flex items-center justify-center">
-                <img
-                  src={URL.createObjectURL(uploadedImage)}
-                  alt="Uploaded"
-                  className="w-24 h-24 object-cover mb-4"
-                />
-              </div>
-            )}
-            {editMode && oldImage && !uploadedImage && (
-              <div className="flex items-center justify-center">
-                <img
-                  src={`${import.meta.env.VITE_BASE_URL}${oldImage}`}
-                  alt="Old Image"
-                  className="w-24 h-24 object-cover mb-4"
-                />
-              </div>
-            )}
-          </div>
-
-          <div>
-            <div
-              {...getRootProps()}
-              className="border border-gray-400 text-white rounded-md hover:border-white duration-300 p-4 text-center cursor-pointer"
+        <input
+          type="file"
+          accept="image/*"
+          name="image"
+          onChange={handleImageChange}
+          className="text-white"
+        />
+        {previewImage && (
+          <div className="relative w-24 h-24 border border-gray-400">
+            <img
+              src={previewImage}
+              alt="Preview"
+              className="w-full h-full object-cover rounded-md"
+            />
+            <button
+              type="button"
+              onClick={() => {
+                setPreviewImage("");
+                setImage(null);
+              }}
+              className="absolute top-1 right-1 bg-red-500 text-white text-sm px-2 py-1 rounded-full"
             >
-              <input {...getInputProps()} />
-              {isUploading ? (
-                <p>Загрузка...</p>
-              ) : (
-                <p>Перетащите файл сюда или кликните для выбора</p>
-              )}
-            </div>
+              ✕
+            </button>
           </div>
-        </div>
+        )}
       </form>
 
       <h2 className="text-xl font-semibold mt-8">Категории:</h2>
-      <div className="flex gap-2 flex-wrap justify-center">
+      <div className="flex justify-center gap-4 flex-wrap">
         {categories.map((category) => (
-          <div
-            key={category._id}
-            className="flex flex-col p-2 items-center gap-y-1 sm:gap-y-4"
-          >
-            <div className="relative w-[100px] h-[100px] sm:w-[200px] sm:h-[200px] overflow-hidden border-[6px] shadow-lg border-gray-300 rounded-full">
+          <div key={category._id} className="text-center mt-4">
+            <div className="relative w-[130px] h-[130px] border-[4px] border-white/30 rounded-full">
               <img
-                src={`${import.meta.env.VITE_BASE_URL}${category.image}`}
+                src={category.image}
                 alt={category.name}
-                className="w-full h-full object-cover rounded-full transition-transform duration-300 ease-in-out transform hover:scale-110 cursor-pointer"
+                className="w-full h-full object-cover rounded-full"
               />
-
-              {/* Кнопки редактирования и удаления */}
-              <div className="absolute inset-0 flex justify-center items-center opacity-0 hover:opacity-100 transition-opacity duration-300">
+              <div className="absolute inset-0 flex gap-2 justify-center items-center opacity-0 hover:opacity-100 bg-black/30 rounded-full transition">
                 <button
-                  onClick={() => handleEditCategory(category._id)}
-                  className="text-blue-500 hover:text-blue-700 mx-2 bg-white/50 p-2 rounded-full"
+                  onClick={() => handleEditCategory(category)}
+                  className="text-white hover:text-blue-600 transition duration-300"
                 >
                   <Edit size={20} />
                 </button>
                 <button
                   onClick={() => handleDeleteCategory(category._id)}
-                  className="text-red-500 hover:text-red-700 mx-2 bg-white/50 p-2 rounded-full"
+                  className="text-red-500 hover:text-red-600 transition duration-300"
                 >
                   <Trash size={20} />
                 </button>
               </div>
             </div>
-
-            <span className="text-lg">{category.name}</span>
+            <p>{category.name}</p>
           </div>
         ))}
       </div>
