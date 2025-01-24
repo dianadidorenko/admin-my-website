@@ -72,7 +72,7 @@ router.get("/", async (req, res) => {
 // ДЛЯ НЕСКОЛЬКИХ ФОТО
 
 router.post("/add", async (req, res) => {
-  const { name, brand, description, country, volumes, purpose } = req.body;
+  const { name, brand, description, country, volumes, purpose, hit } = req.body;
   const files = req.files?.images;
 
   if (
@@ -109,8 +109,12 @@ router.post("/add", async (req, res) => {
       country,
       volumes: JSON.parse(volumes),
       purpose: JSON.parse(purpose),
+      hit,
       images: imageUrls,
     });
+
+    console.log("hit", hit);
+    console.error("hit", hit);
 
     res.json({
       success: true,
@@ -125,7 +129,7 @@ router.post("/add", async (req, res) => {
 
 router.put("/update/:id", async (req, res) => {
   const productId = req.params.id;
-  const { name, brand, description, country, volumes, purpose } = req.body;
+  const { name, brand, description, country, volumes, purpose, hit } = req.body;
 
   try {
     const product = await Product.findById(productId);
@@ -168,6 +172,7 @@ router.put("/update/:id", async (req, res) => {
     product.brand = brand || product.brand;
     product.description = description || product.description;
     product.country = country || product.country;
+    product.hit = hit || product.hit;
     product.volumes = volumes ? JSON.parse(volumes) : product.volumes;
     product.purpose = purpose ? JSON.parse(purpose) : product.purpose;
 

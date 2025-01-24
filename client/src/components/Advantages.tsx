@@ -1,21 +1,22 @@
 const Advantages = () => {
+  const advantages = [
+    "99% продукции в наличии на складе",
+    "Официальный дистрибьютор",
+    "Качественная и надежная упаковка",
+    "Лучшие цены на рынке",
+    "Работаем более 11 лет",
+  ];
+
   return (
-    <div className="flex flex-row mt-[20px] font-semibold text-center">
-      <div className="rounded-[40px] p-6 bg-white w-full">
-        99% продукции в наличии на складе
-      </div>
-      <div className="rounded-[40px] p-6 bg-white w-full">
-        Официальный дистрибьютор
-      </div>
-      <div className="rounded-[40px] p-6 bg-white w-full">
-        Качественная и надежная упаковка
-      </div>
-      <div className="rounded-[40px] p-6 bg-white w-full">
-        Лучшие цены на рынке
-      </div>
-      <div className="rounded-[40px] p-6 bg-white w-full">
-        Работаем более 11 лет
-      </div>
+    <div className="grid grid-cols-2 lg:grid-cols-5 mt-[20px] font-semibold text-center">
+      {advantages.map((advantage, index) => (
+        <div
+          key={index}
+          className="flex items-center justify-center rounded-[40px] p-8 sm:p-6 bg-white"
+        >
+          {advantage}
+        </div>
+      ))}
     </div>
   );
 };

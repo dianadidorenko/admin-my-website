@@ -36,27 +36,28 @@ const Categories = () => {
 
   return (
     <Container>
-      <h1 id="catalog" className="text-[42px] font-semibold mb-[40px] uppercase tracking-[3px]">
+      <h1
+        id="catalog"
+        className="text-[28px] md:text-[42px] font-semibold mb-[40px] uppercase md:tracking-[3px]"
+      >
         Каталог
       </h1>
 
-      <div className="w-full grid grid-cols-1 md:grid-cols-3 lg:grid-cols-7">
+      <div className="w-full grid gap-2 grid-cols-2 sm:grid-cols-3 md:grid-cols-4">
         {categories.map((category) => (
           <div
             key={category._id}
             className="w-full flex flex-col p-2 items-center"
           >
-            <div className="relative w-[90px] h-[140px] hover:w-[140px] duration-300 overflow-hidden border-[4px] shadow-lg border-gray-300 rounded-full">
+            <div className="relative w-[120px] h-[120px] duration-300 overflow-hidden border-[4px] shadow-lg border-gray-300 rounded-full">
               <img
                 src={
-                  `${import.meta.env.VITE_BASE_URL}${category.image}` ||
-                  "https://placehold.co/600x400/EEE/31343C"
+                  category.image || "https://placehold.co/600x400/EEE/31343C"
                 }
                 alt={category.name}
                 className="w-full h-full object-cover rounded-full transition-transform duration-300 ease-in-out transform hover:scale-110 cursor-pointer"
               />
 
-              {/* Кнопки редактирования и удаления */}
               <div className="absolute inset-0 flex justify-center items-center opacity-0 hover:opacity-100 transition-opacity duration-300">
                 <button className="text-blue-500 hover:text-blue-700 mx-2 bg-white/50 p-2 rounded-full duration-300">
                   <Eye size={20} />

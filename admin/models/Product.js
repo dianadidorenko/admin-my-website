@@ -14,7 +14,7 @@ const productSchema = new mongoose.Schema({
     },
   ],
   purpose: { type: [String], required: true },
-  hit: { type: Boolean, default: false },
+  hit: { type: Boolean, required: true, default: false },
   // image: { type: String, required: true },
   images: { type: [String], required: true },
 });

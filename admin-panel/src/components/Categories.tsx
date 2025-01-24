@@ -122,11 +122,14 @@ const Categories = () => {
   }, []);
 
   return (
-    <div className="mx-auto p-4">
-      <h1 className="text-2xl font-semibold mb-4">
-        {editMode ? "Редактировать категорию" : "Создать категорию"}
-      </h1>
-      <form onSubmit={handleCategorySubmit} className="space-y-4">
+    <div className="mx-auto p-4 border-t">
+      <form
+        onSubmit={handleCategorySubmit}
+        className="space-y-4 max-w-[600px] mx-auto"
+      >
+        <h1 className="text-3xl font-semibold mb-4">
+          {editMode ? "Редактировать категорию" : "Создать категорию"}
+        </h1>
         <label htmlFor="categoryName" className="block text-sm font-medium">
           Название категории:
         </label>
@@ -181,7 +184,7 @@ const Categories = () => {
         )}
       </form>
 
-      <h2 className="text-xl font-semibold mt-8">Категории:</h2>
+      <h2 className="text-xl font-semibold mt-8 text-center">Категории:</h2>
       <div className="flex justify-center gap-4 flex-wrap">
         {categories.map((category) => (
           <div key={category._id} className="text-center mt-4">

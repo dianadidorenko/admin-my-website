@@ -20,6 +20,7 @@ interface Product {
   country: string;
   volumes: Volume[];
   purpose: string[];
+  hit: boolean;
   // ДЛЯ НЕСКОЛЬКИХ ФОТО
   images: string[];
   // ДЛЯ ОДНОГО ФОТО
@@ -31,6 +32,7 @@ const Products = () => {
   const [brand, setBrand] = useState<string>("");
   const [description, setDescription] = useState<string>("");
   const [country, setCountry] = useState<string>("");
+  const [hit, setHit] = useState<boolean>(false);
   const [volumes, setVolumes] = useState<
     { volume: string; price: string; weight: string }[]
   >([{ volume: "", price: "", weight: "" }]);
@@ -140,6 +142,7 @@ const Products = () => {
     setVolumes([{ volume: "", price: "", weight: "" }]);
     setPurpose([""]);
     setImages([]);
+    setHit(false);
     setPreviewImages([]);
     setEditMode(false);
     setCurrentProductId(null);
@@ -166,6 +169,9 @@ const Products = () => {
       formData.append("country", country);
       formData.append("volumes", JSON.stringify(volumes));
       formData.append("purpose", JSON.stringify(purpose));
+
+      formData.append("hit", hit.toString());
+
       images.forEach((image) => formData.append("images", image));
       // if (image) formData.append("image", image);
 
@@ -206,6 +212,7 @@ const Products = () => {
     setCountry(product.country);
     setVolumes(product.volumes);
     setPurpose(product.purpose);
+    setHit(product.hit);
     setPreviewImages(product.images);
   };
 
@@ -240,12 +247,12 @@ const Products = () => {
   }, []);
 
   return (
-    <div className="mx-auto p-4">
+    <div className="mx-auto p-4 mt-[100px] border-t">
       <form
         onSubmit={handleProductSubmit}
         className="flex flex-col gap-4 max-w-[600px] mx-auto"
       >
-        <h1 className="text-2xl font-semibold mb-4">Создать товар</h1>
+        <h1 className="text-3xl font-semibold mb-4">Создать товар</h1>
         {/* Название и страна */}
         <div className="flex items-center justify-center gap-2 flex-col sm:flex-row">
           <InputTextField
@@ -425,6 +432,23 @@ const Products = () => {
         )}
         {/* ДЛЯ НЕСКОЛЬКИХ ФОТО */}
 
+        <div className="flex items-center gap-4 border border-gray-400 text-white rounded-md hover:border-white duration-300 py-2 px-2">
+          <label
+            htmlFor="hit"
+            className="font-medium flex-shrink-0 cursor-pointer"
+          >
+            Хит
+          </label>
+          <input
+            type="checkbox"
+            checked={hit}
+            name="hit"
+            id="hit"
+            onChange={(e) => setHit(e.target.checked)}
+            className="w-5 h-5 bg-white border-2 border-gray-300 focus:outline-none cursor-pointer"
+          />
+        </div>
+
         <div className="flex justify-center">
           <button
             type="submit"
@@ -441,7 +465,7 @@ const Products = () => {
       </form>
 
       {/* Отображение товаров */}
-      <h2 className="text-xl font-semibold mt-8">Товары:</h2>
+      <h2 className="text-xl font-semibold mt-8 text-center">Товары:</h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 mt-5">
         {products.map((product) => {
           const selectedVolume = getSelectedVolume(product._id);
@@ -548,6 +572,10 @@ const Products = () => {
                     <li key={index}>Назначение: {item}</li>
                   ))}
                 </ul>
+
+                {product.hit && (
+                  <span className="text-red-500 font-bold">ХИТ</span>
+                )}
               </div>
             </div>
           );
