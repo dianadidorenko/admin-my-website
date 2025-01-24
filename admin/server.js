@@ -28,12 +28,12 @@ app.use(
   })
 );
 
-app.use("/categories", categoryRoutes);
-app.use("/products", productRoutes);
-app.use("/podborki", podborkiRoutes);
-// app.use("/api/categories", categoryRoutes);
-// app.use("/api/products", productRoutes);
-// app.use("/api/podborki", productRoutes);
+// app.use("/categories", categoryRoutes);
+// app.use("/products", productRoutes);
+// app.use("/podborki", podborkiRoutes);
+app.use("/api/categories", categoryRoutes);
+app.use("/api/products", productRoutes);
+app.use("/api/podborki", podborkiRoutes);
 
 app.get("/", (req, res) => {
   res.send("Сервер работает!");
