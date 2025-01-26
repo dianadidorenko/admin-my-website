@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Trash, Edit } from "lucide-react";
 import axios from "axios";
 import toast from "react-hot-toast";
@@ -22,6 +22,9 @@ const Podborki = () => {
   const [currentPodborkiId, setCurrentPodborkiId] = useState<string | null>(
     null
   );
+
+  // Ссылка на форму
+  const formRef = useRef<HTMLFormElement>(null);
 
   const getPodborki = async () => {
     try {
@@ -118,6 +121,9 @@ const Podborki = () => {
     setRedirectName(podborka.redirectName);
     setPodborkiName(podborka.name);
     setPreviewImage(podborka.image);
+
+    // Прокрутка к форме
+    formRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
   useEffect(() => {
@@ -125,8 +131,9 @@ const Podborki = () => {
   }, []);
 
   return (
-    <div className="mx-auto p-4 border-t">
+    <div className="mx-auto p-4 border-t mt-[100px]">
       <form
+        ref={formRef}
         onSubmit={handlePodborkaSubmit}
         className="space-y-4 max-w-[700px] mx-auto"
       >
@@ -216,7 +223,10 @@ const Podborki = () => {
       <h2 className="text-xl font-semibold mt-8 text-center">Подборки:</h2>
       <div className="flex justify-center items-center gap-4 flex-wrap">
         {podborki.map((podborka) => (
-          <div key={podborka._id} className="flex flex-col items-center gap-2 text-center mt-4">
+          <div
+            key={podborka._id}
+            className="flex flex-col items-center gap-2 text-center mt-4"
+          >
             <div className="relative w-[130px] h-[130px] border-[4px] border-white/30 rounded-full">
               <img
                 src={podborka.image}

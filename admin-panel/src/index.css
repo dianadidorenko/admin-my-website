@@ -8,7 +8,7 @@ body {
   place-items: center;
   min-width: 320px;
   min-height: 100vh;
-  background-color: #4a639e;
+  background-color: #05246d80;
   color: white;
 }
 
@@ -16,4 +16,5 @@ input,
 textarea,
 select {
   color: #000;
+  outline: none;
 }

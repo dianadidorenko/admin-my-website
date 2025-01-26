@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { Edit, Trash } from "lucide-react";
@@ -53,6 +53,9 @@ const Products = () => {
   const [productDescriptions, setProductDescriptions] = useState<
     Record<string, boolean>
   >({});
+
+  // Ссылка на форму
+  const formRef = useRef<HTMLFormElement>(null);
 
   // ДЛЯ ОДНОГО ФОТО
   // const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -214,6 +217,9 @@ const Products = () => {
     setPurpose(product.purpose);
     setHit(product.hit);
     setPreviewImages(product.images);
+
+    // Прокрутка к форме
+    formRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
   // Функционал удаления товара
@@ -249,6 +255,7 @@ const Products = () => {
   return (
     <div className="mx-auto p-4 mt-[100px] border-t">
       <form
+        ref={formRef}
         onSubmit={handleProductSubmit}
         className="flex flex-col gap-4 max-w-[600px] mx-auto"
       >
@@ -472,45 +479,48 @@ const Products = () => {
 
           return (
             <div key={product._id}>
-              <div className="relative group border-[1px] shadow-lg border-gray-300 py-2 px-4 rounded-md space-y-4 lg:overflow-y-scroll lg:h-[400px]">
+              <div className="pt-10 h-full relative group shadow-lg shadow-white/20 border-2 border-white/10 py-2 px-4 rounded-md lg:overflow-y-scroll lg:h-[470px]">
                 {/* Отображение изображений */}
-                <div className="flex gap-2 overflow-x-scroll scroll-smooth w-full">
+                <div className="flex justify-center gap-2 overflow-x-scroll scroll-smooth">
                   {product.images.map((item, index) => (
                     <div className="overflow-hidden flex-shrink-0" key={index}>
                       <img
                         src={item}
                         alt={product.productName}
-                        className="w-[150px] h-[150px] object-cover transition-transform duration-300 ease-in-out transform hover:scale-110 cursor-pointer"
+                        className="w-[100px] h-[100px] object-cover cursor-pointer rounded-lg"
                       />
                     </div>
                   ))}
                 </div>
 
                 {/* Кнопки редактирования и удаления */}
-                <div className="absolute top-0 right-0 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <div className="absolute top-2 right-2 flex items-center justify-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                   <button
                     onClick={() => handleEditProduct(product)}
-                    className="text-blue-500 hover:text-blue-700 mx-2 bg-white/50 p-2 rounded-full duration-300"
+                    className="text-blue-500 hover:text-blue-700 bg-white/50 p-2 rounded-full duration-300"
                   >
                     <Edit size={20} />
                   </button>
                   <button
                     onClick={() => handleDeleteProduct(product._id)}
-                    className="text-red-500 hover:text-red-700 mx-2 bg-white/50 p-2 rounded-full duration-300"
+                    className="text-red-500 hover:text-red-700 bg-white/50 p-2 rounded-full duration-300"
                   >
                     <Trash size={20} />
                   </button>
                 </div>
 
-                <p className="text-lg">{product.productName}</p>
-                <p>
+                <p className="text-base leading-[22px] py-2">
+                  {product.productName}
+                </p>
+
+                <p className="text-[14px] py-2 flex flex-col gap-1">
                   {productDescriptions[product._id] ||
                   product.description.length <= 100
                     ? product.description
                     : `${product.description.slice(0, 100)}...`}{" "}
                   {product.description.length > 100 && (
                     <span
-                      className="underline text-[14px] pl-2 cursor-pointer"
+                      className="underline text-[13px] cursor-pointer"
                       onClick={() => toggleDesc(product._id)}
                     >
                       {productDescriptions[product._id]
@@ -519,62 +529,63 @@ const Products = () => {
                     </span>
                   )}
                 </p>
-                <p>Страна производства: {product.country}</p>
 
-                {/* Проверка для отображения объема, цены и веса */}
-                <div className="relative space-y-4">
-                  <div>
-                    <p>
-                      Объем:{" "}
-                      {selectedVolume?.volume ?? product.volumes[0].volume} мл
-                    </p>
-                    <p>
-                      Цена: {selectedVolume?.price ?? product.volumes[0].price}{" "}
-                      грн
-                    </p>
-                    <p>
-                      Вес: {selectedVolume?.weight ?? product.volumes[0].weight}{" "}
-                      г
-                    </p>
+                <div className="flex flex-col items-center gap-4">
+                  <p className="text-[14px]">
+                    Страна производства: {product.country}
+                  </p>
+
+                  {/* Проверка для отображения объема, цены и веса */}
+                  <div className="text-[14px] flex items-center gap-8 justify-between">
+                    <div>
+                      <p>
+                        Объем:{" "}
+                        {selectedVolume?.volume ?? product.volumes[0].volume} мл
+                      </p>
+                      <p>
+                        Цена:{" "}
+                        {selectedVolume?.price ?? product.volumes[0].price} грн
+                      </p>
+                      <p>
+                        Вес:{" "}
+                        {selectedVolume?.weight ?? product.volumes[0].weight} г
+                      </p>
+                    </div>
+
+                    {product.volumes.length > 1 && (
+                      <div className="text-[15px]">
+                        <select
+                          className="border p-2 rounded-md w-full"
+                          onChange={(e) =>
+                            handleVolumeSelect(
+                              product._id,
+                              Number(e.target.value)
+                            )
+                          }
+                          value={selectedVolumes[product._id] ?? 0}
+                        >
+                          {product.volumes.map((item, index) => (
+                            <option key={index} value={index}>
+                              {item.volume} мл
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    )}
                   </div>
 
-                  {product.volumes.length > 1 ? (
-                    <div className="mt-4">
-                      <select
-                        className="border p-2 rounded-md w-full"
-                        onChange={(e) =>
-                          handleVolumeSelect(
-                            product._id,
-                            Number(e.target.value)
-                          )
-                        }
-                        value={selectedVolumes[product._id] ?? 0}
-                      >
-                        {product.volumes.map((item, index) => (
-                          <option key={index} value={index}>
-                            {item.volume} мл
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  ) : (
-                    <div>
-                      <p>{product.volumes[0].volume} мл</p>
-                      <p>{product.volumes[0].price} грн</p>
-                      <p>{product.volumes[0].weight} г</p>
-                    </div>
-                  )}
+                  {/* Отображение назначений */}
+                  <ul className="text-[14px] mb-3">
+                    {product.purpose.map((item, index) => (
+                      <li key={index}>Назначение: {item}</li>
+                    ))}
+                  </ul>
                 </div>
 
-                {/* Отображение назначений */}
-                <ul>
-                  {product.purpose.map((item, index) => (
-                    <li key={index}>Назначение: {item}</li>
-                  ))}
-                </ul>
-
                 {product.hit && (
-                  <span className="text-red-500 font-bold">ХИТ</span>
+                  <p className="absolute top-2 left-2 text-[14px] border py-1 px-2 rounded-md font-bold">
+                    ХИТ
+                  </p>
                 )}
               </div>
             </div>

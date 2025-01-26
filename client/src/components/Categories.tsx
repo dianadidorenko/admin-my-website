@@ -42,33 +42,34 @@ const Categories = () => {
         Каталог
       </h1>
 
-      <div className="w-full grid gap-2 grid-cols-2 sm:grid-cols-3 md:grid-cols-4">
+      <div className="relative w-full grid gap-4 grid-cols-2 sm:grid-cols-3 md:grid-cols-5">
         {categories.map((category) => (
           <div
             key={category._id}
-            className="w-full flex flex-col p-2 items-center"
+            className="relative w-full cursor-pointer h-[180px] flex flex-col justify-between pt-3 pl-3 bg-[#f9f9f9] hover:bg-[#f0f0f0] border rounded-lg shadow-md hover:shadow-lg transition-all duration-300"
           >
-            <div className="relative w-[120px] h-[120px] duration-300 overflow-hidden border-[4px] shadow-lg border-gray-300 rounded-full">
+            {/* Название категории */}
+            <p className="font-normal text-[15px] text-gray-800 leading-[17px]">
+              {category.name}
+            </p>
+
+            {/* Контейнер для изображения */}
+            <div className="absolute bottom-[-1px] right-0 w-[170px] h-[190px] duration-300 overflow-hidden rounded-lg mx-auto">
               <img
                 src={
-                  category.image || "https://placehold.co/600x400/EEE/31343C"
+                  category.image || "https://placehold.co/150x150/EEE/31343C"
                 }
                 alt={category.name}
-                className="w-full h-full object-cover rounded-full transition-transform duration-300 ease-in-out transform hover:scale-110 cursor-pointer"
+                className="w-full h-full object-cover rounded-lg cursor-pointer transition-transform duration-300 hover:scale-110"
               />
-
-              <div className="absolute inset-0 flex justify-center items-center opacity-0 hover:opacity-100 transition-opacity duration-300">
-                <button className="text-blue-500 hover:text-blue-700 mx-2 bg-white/50 p-2 rounded-full duration-300">
-                  <Eye size={20} />
-                </button>
-              </div>
             </div>
 
-            <span className="text-lg flex items-center justify-between mt-2">
-              <span className="font-bold mr-1">[</span>
-              <span className="text-center">{category.name}</span>
-              <span className="font-bold ml-1">]</span>
-            </span>
+            {/* Иконка в центре изображения */}
+            <div className="absolute inset-0 flex justify-center items-center opacity-0 hover:opacity-100 transition-opacity duration-300">
+              <button className="text-[#fa5592] hover:text-[#fa5592] bg-white p-2 rounded-full shadow-lg transition duration-300">
+                <Eye size={20} />
+              </button>
+            </div>
           </div>
         ))}
       </div>

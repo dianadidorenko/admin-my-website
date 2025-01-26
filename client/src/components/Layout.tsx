@@ -2,6 +2,7 @@ import React from "react";
 import { Toaster } from "react-hot-toast";
 
 import Header from "./Header";
+import Footer from "./Footer";
 // import Footer from "./Footer";
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
@@ -22,6 +23,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
           },
         }}
       />
+      <Footer />
     </>
   );
 };

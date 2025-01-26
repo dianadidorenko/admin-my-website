@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { Trash, Edit } from "lucide-react";
 import axios from "axios";
 import toast from "react-hot-toast";
@@ -21,10 +21,12 @@ const Categories = () => {
     null
   );
 
+  // Ссылка на форму
+  const formRef = useRef<HTMLFormElement>(null);
+
   const getCategories = async () => {
     try {
       const response = await axios.get(`${config?.baseUrl}/categories`);
-
       if (response.data.success) {
         setCategories(response.data.data);
       } else {
@@ -36,7 +38,6 @@ const Categories = () => {
     }
   };
 
-  // Обработчик выбора изображения
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
@@ -45,7 +46,6 @@ const Categories = () => {
     }
   };
 
-  // Сброс состояния формы
   const resetForm = () => {
     setCategoryName("");
     setImage(null);
@@ -115,6 +115,9 @@ const Categories = () => {
     setCurrentCategoryId(category._id);
     setCategoryName(category.name);
     setPreviewImage(category.image);
+
+    // Прокрутка к форме
+    formRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
   useEffect(() => {
@@ -123,7 +126,9 @@ const Categories = () => {
 
   return (
     <div className="mx-auto p-4 border-t">
+      {/* Форма */}
       <form
+        ref={formRef}
         onSubmit={handleCategorySubmit}
         className="space-y-4 max-w-[600px] mx-auto"
       >
@@ -184,17 +189,21 @@ const Categories = () => {
         )}
       </form>
 
+      {/* Категории */}
       <h2 className="text-xl font-semibold mt-8 text-center">Категории:</h2>
-      <div className="flex justify-center gap-4 flex-wrap">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 place-items-center">
         {categories.map((category) => (
-          <div key={category._id} className="text-center mt-4">
-            <div className="relative w-[130px] h-[130px] border-[4px] border-white/30 rounded-full">
+          <div key={category._id} className="mt-4 text-center cursor-pointer">
+            <div className="relative w-[200px] h-[150px] group overflow-hidden rounded-lg shadow-lg shadow-white/20 border border-white/10">
+              <p className="max-w-[300px] mx-auto text-center text-sm font-medium mt-2">
+                {category.name}
+              </p>
               <img
                 src={category.image}
                 alt={category.name}
-                className="w-full h-full object-cover rounded-full"
+                className="absolute bottom-0 right-0 w-[130px] h-[130px] object-cover rounded-lg group-hover:brightness-75 transition duration-500"
               />
-              <div className="absolute inset-0 flex gap-2 justify-center items-center opacity-0 hover:opacity-100 bg-black/30 rounded-full transition">
+              <div className="absolute inset-0 flex gap-2 justify-center items-center opacity-0 group-hover:opacity-100 bg-black/40 transition duration-300">
                 <button
                   onClick={() => handleEditCategory(category)}
                   className="text-white hover:text-blue-600 transition duration-300"
@@ -209,7 +218,6 @@ const Categories = () => {
                 </button>
               </div>
             </div>
-            <p>{category.name}</p>
           </div>
         ))}
       </div>

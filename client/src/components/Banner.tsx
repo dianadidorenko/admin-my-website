@@ -15,11 +15,12 @@ import { Autoplay } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 
 import left from "../assets/header-bg/left.jpg";
-import right from "../assets/header-bg/right.jpg";
+// import right from "../assets/header-bg/right.jpg";
 import first from "../assets/slider-banner/1.jpg";
 import second from "../assets/slider-banner/2.jpg";
 import third from "../assets/slider-banner/3.jpg";
 import fourth from "../assets/slider-banner/4.jpg";
+import logo from "../assets/1.jpg";
 
 const swiperNames = [
   { name: "В путешествие", img: first },
@@ -38,7 +39,8 @@ const Banner = () => {
       {/* Левое изображение */}
       <div className="w-full md:w-1/2 h-[50%] md:h-full flex items-center justify-center">
         <img
-          src={right}
+          // src={right}
+          src={logo}
           alt="Right"
           className="w-full h-full object-cover object-top md:rounded-ee-[50px]"
         />
