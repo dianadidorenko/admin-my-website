@@ -1,16 +1,13 @@
 import React from "react";
 import { Toaster } from "react-hot-toast";
-
-import Header from "./Header";
-import Footer from "./Footer";
+import Navbar from "./Navbar";
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   return (
     <>
-      <Header />
+      <Navbar />
       {children}
       <Toaster position="top-right" />
-      <Footer />
     </>
   );
 };

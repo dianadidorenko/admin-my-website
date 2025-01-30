@@ -7,21 +7,7 @@ import { config } from "../../config";
 import Container from "./Container";
 import { Link } from "react-router-dom";
 import ProductCard from "./ProductCard";
-
-interface Volume {
-  volume: string;
-  price: string;
-  weight: string;
-}
-
-interface Product {
-  _id: string;
-  productName: string;
-  brand: string;
-  hit: boolean;
-  images: string[];
-  volumes: Volume[];
-}
+import { Product } from "@/lib/types";
 
 const Hits = () => {
   const [products, setProducts] = useState<Product[]>([]);

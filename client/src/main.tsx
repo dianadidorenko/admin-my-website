@@ -1,15 +1,21 @@
 import { createRoot } from "react-dom/client";
-import "./index.css";
-import App from "./App.tsx";
 import {
   createBrowserRouter,
   Outlet,
   RouterProvider,
   ScrollRestoration,
 } from "react-router-dom";
+
+import "./index.css";
+import App from "./App.tsx";
 import Layout from "./components/Layout.tsx";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import StoreContextProvider from "./context/storeContext.tsx";
 import Bestsellers from "./pages/Bestsellers.tsx";
 import Info from "./pages/Info.tsx";
+import Profile from "./pages/Profile.tsx";
+import Cart from "./pages/Cart.tsx";
 
 const RouterLayout = () => {
   return (
@@ -37,46 +43,28 @@ const router = createBrowserRouter([
         path: "/info",
         element: <Info />,
       },
-      // {
-      //   path: "/category",
-      //   element: <Category />,
-      // },
-      // {
-      //   path: "/category/:id",
-      //   element: <Category />,
-      // },
-      // {
-      //   path: "/profile",
-      //   element: <Profile />,
-      // },
-      // {
-      //   path: "/cart",
-      //   element: <Cart />,
-      // },
-      // {
-      //   path: "/favorite",
-      //   element: <Favorite />,
-      // },
-      // {
-      //   path: "/orders",
-      //   element: <Orders />,
-      // },
-      // {
-      //   path: "/success",
-      //   element: <Success />,
-      // },
-      // {
-      //   path: "/cancel",
-      //   element: <Cancel />,
-      // },
-      // {
-      //   path: "*",
-      //   element: <NotFound />,
-      // },
+      {
+        path: "/login",
+        element: <Login />,
+      },
+      {
+        path: "/register",
+        element: <Register />,
+      },
+      {
+        path: "/profile",
+        element: <Profile />,
+      },
+      {
+        path: "/cart",
+        element: <Cart />,
+      },
     ],
   },
 ]);
 
 createRoot(document.getElementById("root")!).render(
-  <RouterProvider router={router} />
+  <StoreContextProvider>
+    <RouterProvider router={router} />
+  </StoreContextProvider>
 );

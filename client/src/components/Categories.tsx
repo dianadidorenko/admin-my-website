@@ -4,12 +4,7 @@ import axios from "axios";
 import toast from "react-hot-toast";
 import Container from "./Container";
 import { config } from "../../config";
-
-interface Category {
-  _id: string;
-  name: string;
-  image: string;
-}
+import { Category } from "@/lib/types";
 
 const Categories = () => {
   const [categories, setCategories] = useState<Category[]>([]);

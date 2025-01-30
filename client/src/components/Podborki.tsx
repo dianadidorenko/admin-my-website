@@ -8,16 +8,10 @@ import { config } from "../../config";
 import { Link } from "react-router-dom";
 import { ArrowLeft, ArrowRight, Plus } from "lucide-react";
 import Container from "./Container";
-
-interface Podborki {
-  _id: string;
-  name: string;
-  redirectName: string;
-  image: string;
-}
+import { PodborkiItem } from "@/lib/types";
 
 const Podborki = () => {
-  const [podborki, setPodborki] = useState<Podborki[]>([]);
+  const [podborki, setPodborki] = useState<PodborkiItem[]>([]);
 
   const getPodborki = async () => {
     try {

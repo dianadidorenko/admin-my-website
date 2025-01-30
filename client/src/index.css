@@ -20,6 +20,17 @@ body {
   font-style: normal;
 }
 
+input,
+textarea,
+select {
+  color: #000;
+  outline: none;
+}
+
+[data-vaul-drawer][data-vaul-drawer-direction="bottom"]::after {
+  content: none !important; /* Убирает дополнительный элемент */
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;

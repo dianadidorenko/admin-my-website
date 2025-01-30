@@ -10,6 +10,8 @@ connectDB();
 const categoryRoutes = require("./routes/categoryRoutes");
 const productRoutes = require("./routes/productRoutes");
 const podborkiRoutes = require("./routes/podborkiRoutes");
+const userRoutes = require("./routes/userRoutes");
+const cartRoutes = require("./routes/cartRoutes");
 
 app.use(
   cors({
@@ -31,9 +33,13 @@ app.use(
 // app.use("/categories", categoryRoutes);
 // app.use("/products", productRoutes);
 // app.use("/podborki", podborkiRoutes);
+// app.use("/users", userRoutes);
+// app.use("/cart", cartRoutes);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/podborki", podborkiRoutes);
+app.use("/api/users", userRoutes);
+app.use("/api/cart", cartRoutes);
 
 app.get("/", (req, res) => {
   res.send("Сервер работает!");

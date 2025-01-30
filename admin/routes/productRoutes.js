@@ -14,63 +14,79 @@ router.get("/", async (req, res) => {
   }
 });
 
+router.get("/:id", async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id);
+    if (!product) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Product not found" });
+    }
+    res.status(200).json({ success: true, data: product });
+  } catch (error) {
+    console.error("Error fetching product:", error);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+});
+
 // ДЛЯ ОДНОГО ФОТО
-// router.post("/add", async (req, res) => {
-//   const { name, brand, price, description, country, volume, weight, purpose } =
-//     req.body;
-//   const image = req.files?.image;
+router.post("/add", async (req, res) => {
+  const { name, brand, price, description, country, volume, weight, purpose } =
+    req.body;
+  const image = req.files?.image;
 
-//  if (!image || !image.tempFilePath) {
-//    return res.status(400).json({ success: false, error: "Invalid input data" });
-//  }
+  if (!image || !image.tempFilePath) {
+    return res
+      .status(400)
+      .json({ success: false, error: "Invalid input data" });
+  }
 
-//   if (
-//     !name ||
-//     !brand ||
-//     !price ||
-//     !description ||
-//     !country ||
-//     !volume ||
-//     !weight ||
-//     !purpose
-//   ) {
-//     return res
-//       .status(400)
-//       .json({ success: false, error: "Missing required fields" });
-//   }
+  if (
+    !name ||
+    !brand ||
+    !price ||
+    !description ||
+    !country ||
+    !volume ||
+    !weight ||
+    !purpose
+  ) {
+    return res
+      .status(400)
+      .json({ success: false, error: "Missing required fields" });
+  }
 
-//   try {
-//  const result = await cloudinary.uploader.upload(image.tempFilePath, {
-//       folder: "products",
-//       public_id: `${Date.now()}-${name}`,
-//     });
+  try {
+    const result = await cloudinary.uploader.upload(image.tempFilePath, {
+      folder: "products",
+      public_id: `${Date.now()}-${name}`,
+    });
 
-//     // Создаем продукт
-//     const product = await Product.create({
-//       productName: name,
-//       brand: brand,
-//       price: price,
-//       description: description,
-//       country: country,
-//       volume: volume,
-//       weight: weight,
-//       purpose: JSON.parse(purpose),
-//       image: result.secure_url
-//     });
+    // Создаем продукт
+    const product = await Product.create({
+      productName: name,
+      brand: brand,
+      price: price,
+      description: description,
+      country: country,
+      volume: volume,
+      weight: weight,
+      purpose: JSON.parse(purpose),
+      image: result.secure_url,
+    });
 
-//     res.json({
-//       success: true,
-//       msg: "Product successfully created",
-//       data: product,
-//     });
-//   } catch (error) {
-//     console.error("Error creating product:", error.message);
-//     res.status(500).json({ success: false, error: error.message });
-//   }
-// });
+    res.json({
+      success: true,
+      msg: "Product successfully created",
+      data: product,
+    });
+  } catch (error) {
+    console.error("Error creating product:", error.message);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
 
 // ДЛЯ НЕСКОЛЬКИХ ФОТО
-
 router.post("/add", async (req, res) => {
   const { name, brand, description, country, volumes, purpose, hit } = req.body;
   const files = req.files?.images;
@@ -112,9 +128,6 @@ router.post("/add", async (req, res) => {
       hit,
       images: imageUrls,
     });
-
-    console.log("hit", hit);
-    console.error("hit", hit);
 
     res.json({
       success: true,

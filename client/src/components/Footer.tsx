@@ -45,14 +45,14 @@ const Footer = () => {
               <h3 className="uppercase">Свяжитесь с нами</h3>
               <a
                 href="tel:+380974379424"
-                className="flex items-center gap-2 text-white/60 hover:text-white transition"
+                className="flex items-center gap-2 text-white/60 hover:text-[#fa5592] transition"
               >
                 <Phone size={15} />
                 +380974379424
               </a>
               <a
                 href="mailto:info@capricos.shop"
-                className="flex items-center gap-2 text-white/60 hover:text-white transition"
+                className="flex items-center gap-2 text-white/60 hover:text-[#fa5592] transition"
               >
                 <Mail size={15} />
                 info@capricos.shop
@@ -61,7 +61,7 @@ const Footer = () => {
                 href="https://t.me/username"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex gap-2 items-center text-white/60 hover:text-white transition"
+                className="flex gap-2 items-center text-white/60 hover:text-[#fa5592] transition"
               >
                 <TbBrandTelegram size={17} />
                 Telegram
@@ -70,7 +70,7 @@ const Footer = () => {
                 href="https://wa.me/380974379424"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex gap-2 items-center text-white/60 hover:text-white transition"
+                className="flex gap-2 items-center text-white/60 hover:text-[#fa5592] transition"
               >
                 <TbBrandWhatsapp size={17} />
                 WhatsApp
@@ -91,31 +91,31 @@ const Footer = () => {
                 <div className="flex flex-col gap-3">
                   <Link
                     to="/hair-care"
-                    className="text-white/60 hover:text-white transition"
+                    className="text-white/60 hover:text-[#fa5592] transition"
                   >
                     Уход для волос
                   </Link>
                   <Link
                     to="/face-care"
-                    className="text-white/60 hover:text-white transition"
+                    className="text-white/60 hover:text-[#fa5592] transition"
                   >
                     Уход для лица
                   </Link>
                   <Link
                     to="/body-care"
-                    className="text-white/60 hover:text-white transition"
+                    className="text-white/60 hover:text-[#fa5592] transition"
                   >
                     Уход для тела
                   </Link>
                   <Link
                     to="/hand-foot-care"
-                    className="text-white/60 hover:text-white transition"
+                    className="text-white/60 hover:text-[#fa5592] transition"
                   >
                     Уход для рук и ног
                   </Link>
                   <Link
                     to="/men-care"
-                    className="text-white/60 hover:text-white transition"
+                    className="text-white/60 hover:text-[#fa5592] transition"
                   >
                     Уход для мужчин
                   </Link>
@@ -123,31 +123,31 @@ const Footer = () => {
                 <div className="flex flex-col gap-3">
                   <Link
                     to="/travel-size"
-                    className="text-white/60 hover:text-white transition"
+                    className="text-white/60 hover:text-[#fa5592] transition"
                   >
                     Тревел сайз
                   </Link>
                   <Link
                     to="/sun-protection"
-                    className="text-white/60 hover:text-white transition"
+                    className="text-white/60 hover:text-[#fa5592] transition"
                   >
                     Защита от солнца
                   </Link>
                   <Link
                     to="/new"
-                    className="text-white/60 hover:text-white transition"
+                    className="text-white/60 hover:text-[#fa5592] transition"
                   >
                     Новинки
                   </Link>
                   <Link
                     to="/bestsellers"
-                    className="text-white/60 hover:text-white transition"
+                    className="text-white/60 hover:text-[#fa5592] transition"
                   >
                     Хиты продаж
                   </Link>
                   <Link
                     to="/collections"
-                    className="text-white/60 hover:text-white transition"
+                    className="text-white/60 hover:text-[#fa5592] transition"
                   >
                     Подборки
                   </Link>
@@ -160,25 +160,25 @@ const Footer = () => {
               <h3 className="uppercase">Клиентам</h3>
               <Link
                 to="/delivery"
-                className="text-white/60 hover:text-white transition"
+                className="text-white/60 hover:text-[#fa5592] transition"
               >
                 Доставка и оплата
               </Link>
               <Link
                 to="/warranty"
-                className="text-white/60 hover:text-white transition"
+                className="text-white/60 hover:text-[#fa5592] transition"
               >
                 Гарантии и возврат
               </Link>
               <Link
                 to="/about-us"
-                className="text-white/60 hover:text-white transition"
+                className="text-white/60 hover:text-[#fa5592] transition"
               >
                 О нас
               </Link>
               <Link
                 to="/requisites"
-                className="text-white/60 hover:text-white transition"
+                className="text-white/60 hover:text-[#fa5592] transition"
               >
                 Реквизиты
               </Link>
