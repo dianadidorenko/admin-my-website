@@ -3,7 +3,7 @@ import axios from "axios";
 
 import { config } from "../../config";
 import { StoreContext } from "../context/storeContext";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 
 const Register = () => {
@@ -83,13 +83,17 @@ const Register = () => {
             className="shadow-lg appearance-none border-2 border-gray-300 rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition duration-200"
           />
         </div>
-        <div className="flex justify-center">
+        <div className="flex flex-col items-center justify-center">
           <button
             type="submit"
             className="bg-gradient-to-r from-blue-300 to-purple-600 hover:from-blue-600 hover:to-purple-600 text-white font-semibold py-3 px-6 rounded-xl shadow-md focus:outline-none focus:ring-2 focus:ring-blue-300 transition duration-200"
           >
             Зарегистрироваться
           </button>
+          
+          <Link to={"/login"} className="block underline pt-4 text-[14px]">
+            Есть аккаунт?
+          </Link>
         </div>
       </form>
     </div>

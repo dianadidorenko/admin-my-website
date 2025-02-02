@@ -16,6 +16,7 @@ import Bestsellers from "./pages/Bestsellers.tsx";
 import Info from "./pages/Info.tsx";
 import Profile from "./pages/Profile.tsx";
 import Cart from "./pages/Cart.tsx";
+import ProductPage from "./pages/ProductPage.tsx";
 
 const RouterLayout = () => {
   return (
@@ -58,6 +59,10 @@ const router = createBrowserRouter([
       {
         path: "/cart",
         element: <Cart />,
+      },
+      {
+        path: "/product/:id",
+        element: <ProductPage />,
       },
     ],
   },

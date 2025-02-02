@@ -19,11 +19,15 @@ import { config } from "../../config";
 import { Product } from "@/lib/types";
 
 const Header = () => {
+  const [products, setProducts] = useState<Product[]>([]);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isReducedWidth, setIsReducedWidth] = useState(false);
   const [openCart, setOpenCart] = useState(false);
   const [wishlist, setWishlist] = useState<Product[]>([]);
   const [openFavorite, setOpenFavorite] = useState(false);
+  const [openSearch, setOpenSearch] = useState(false);
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [searchResults, setSearchResults] = useState<Product[]>([]);
 
   const {
     token,
@@ -36,6 +40,29 @@ const Header = () => {
   } = useContext(StoreContext)!;
   const navigate = useNavigate();
 
+  // ✅ Функция загрузки всех товаров
+  const fetchProducts = async () => {
+    try {
+      const response = await axios.get(`${config.baseUrl}/products`);
+      setProducts(response.data.data || []);
+    } catch (error) {
+      console.error("Ошибка загрузки всех товаров:", error);
+    }
+  };
+
+  // Переход к якорной ссылке
+  const handleScrollToSection = (id: string) => {
+    if (window.location.pathname !== "/") {
+      navigate("/");
+    }
+
+    setTimeout(() => {
+      const section = document.getElementById(id);
+      if (section) {
+        section.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }, 300);
+  };
 
   // Изменение лого в зависимости от ширины экрана и скролла
   useEffect(() => {
@@ -58,7 +85,7 @@ const Header = () => {
     };
   }, []);
 
-  // Получение списка избранного и содержимого корзины 
+  // Получение списка всех товаров, избранных товаров и содержимого корзины
   useEffect(() => {
     const fetchWishlist = async () => {
       if (!token) return;
@@ -76,6 +103,7 @@ const Header = () => {
       }
     };
 
+    fetchProducts();
     fetchWishlist();
     fetchCart();
   }, [token]);
@@ -103,6 +131,31 @@ const Header = () => {
     }
   };
 
+  // 🔍 Фильтрация товаров на клиенте (без запроса на сервер)
+  const handleSearch = (query: string) => {
+    setSearchQuery(query);
+    if (!query.trim()) {
+      setSearchResults([]);
+      return;
+    }
+
+    const regex = new RegExp(query, "i");
+    const filteredProducts = products.filter(
+      (product) =>
+        regex.test(product.productName) ||
+        regex.test(product.brand) ||
+        regex.test(product.country)
+    );
+
+    setSearchResults(filteredProducts);
+  };
+
+  // Очистка поиска
+  const clearSearch = () => {
+    setSearchQuery("");
+    setSearchResults([]);
+  };
+
   return (
     <header
       className={`${
@@ -112,13 +165,13 @@ const Header = () => {
       } w-full transition-all duration-300 bg-white bg-opacity-20 backdrop-blur-sm font-medium text-[14px] flex items-center justify-between px-2 sm:px-8 py-4`}
     >
       <div className="hidden sm:flex items-center gap-4 flex-1 pr-4">
-        <Link
-          to={"#catalog"}
+        <button
+          onClick={() => handleScrollToSection("catalog")}
           className="hidden sm:flex gap-1 items-center hover:text-[#fa5592] duration-300"
         >
           <TbLayoutGridFilled fill="black" size={16} className="mb-[3px]" />
           Каталог
-        </Link>
+        </button>
         <Link
           to={"/bestsellers"}
           className="hidden sm:flex gap-1 items-center hover:text-[#fa5592] duration-300"
@@ -131,12 +184,12 @@ const Header = () => {
           />
           Хиты
         </Link>
-        <Link
-          to={"#podborki"}
+        <button
+          onClick={() => handleScrollToSection("podborki")}
           className="hover:text-[#fa5592] duration-300 hidden md:block"
         >
           Подборки
-        </Link>
+        </button>
         <Link
           to={"/info"}
           className="hover:text-[#fa5592] duration-300 hidden lg:block"
@@ -162,7 +215,10 @@ const Header = () => {
       </Link>
 
       <div className="flex items-center gap-4 flex-1 justify-end pl-2">
-        <Search size={15} className="hidden sm:block cursor-pointer mb-[2px]" />
+        {/* Значок поиска */}
+        <button onClick={() => setOpenSearch(true)} className="cursor-pointer">
+          <Search size={20} className="text-gray-700 hover:text-gray-900" />
+        </button>
         <div className="flex items-center gap-2 cursor-pointer">
           <Heart
             size={15}
@@ -192,7 +248,7 @@ const Header = () => {
         </div>
         <div
           className="cursor-pointer shadow hover:shadow-md hover:shadow-pink-400 duration-300 rounded-full p-[2px] bg-gradient-to-r from-purple-100 to-pink-300"
-          onClick={() => (token ? navigate("/profile") : navigate("/register"))}
+          onClick={() => (token ? navigate("/profile") : navigate("/login"))}
         >
           <GrUserFemale size={22} color="#fa5592" className="rounded-full" />
         </div>
@@ -266,7 +322,7 @@ const Header = () => {
                   🛒 Ваша корзина пуста
                 </div>
               ) : (
-                <div className="max-h-[400px] overflow-y-auto p-4 space-y-4">
+                <div className="overflow-y-auto p-4 space-y-4">
                   {cartItems.map((item) => (
                     <div
                       key={item.product._id}
@@ -337,6 +393,72 @@ const Header = () => {
                     Оформить заказ
                   </Link>
                 </div>
+              )}
+            </DrawerDescription>
+          </DrawerHeader>
+        </DrawerContent>
+      </Drawer>
+
+      {/* Попап поиска */}
+      <Drawer open={openSearch} onOpenChange={setOpenSearch}>
+        <DrawerContent>
+          <DrawerClose asChild>
+            <div className="absolute top-2 right-2 cursor-pointer">
+              <X size={30} />
+            </div>
+          </DrawerClose>
+          <DrawerHeader>
+            <DrawerTitle className="text-[18px] md:text-[24px] font-semibold uppercase">
+              Поиск товаров
+            </DrawerTitle>
+            <DrawerDescription>
+              <div className="relative mt-4">
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => handleSearch(e.target.value)}
+                  placeholder="Введите название, бренд или страну..."
+                  className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-pink-400"
+                />
+                {searchQuery && (
+                  <X
+                    size={18}
+                    className="absolute right-3 top-3 text-gray-500 cursor-pointer"
+                    onClick={clearSearch}
+                  />
+                )}
+              </div>
+
+              {/* Результаты поиска */}
+              {searchResults.length > 0 ? (
+                <div className="w-full overflow-y-auto mt-4">
+                  {searchResults.map((product) => (
+                    <Link
+                      key={product._id}
+                      to={`/product/${product._id}`}
+                      className="flex items-center p-3 border-b hover:bg-gray-100 transition duration-200"
+                      onClick={() => setOpenSearch(false)}
+                    >
+                      <img
+                        src={product.images[0]}
+                        alt={product.productName}
+                        className="w-[50px] h-[50px] object-cover rounded-md"
+                      />
+                      <div className="ml-3">
+                        <p className="text-sm font-medium">
+                          {product.productName}
+                        </p>
+                        <p className="text-xs text-gray-500">{product.brand}</p>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              ) : (
+                searchQuery && (
+                  <span className="text-center text-gray-500 mt-4">
+                    Ничего не найдено
+                  </span>
+                )
               )}
             </DrawerDescription>
           </DrawerHeader>

@@ -13,6 +13,7 @@ export interface Product {
   country: string;
   volumes: Volume[];
   images: string[];
+  purpose: string[];
 }
 
 export interface CartItem {

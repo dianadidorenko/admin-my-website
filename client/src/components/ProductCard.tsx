@@ -5,7 +5,7 @@ import { useContext, useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { config } from "../../config";
 import ProductModal from "./ProductModal";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Product } from "@/lib/types";
 
 interface ProductCardProps {
@@ -16,8 +16,10 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const { token, addToCart } = useContext(StoreContext)!;
   const [isFavorite, setIsFavorite] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+
   const navigate = useNavigate();
 
+  // Получение списка избранного
   useEffect(() => {
     const fetchWishlist = async () => {
       try {
@@ -39,6 +41,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     fetchWishlist();
   }, [product._id, token]);
 
+  // Добавление товара в избранное
   const handleFavoriteClick = async () => {
     if (!token) {
       toast.error("Пожалуйста, авторизуйтесь, чтобы добавлять в избранное.");
@@ -101,19 +104,23 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         className="relative flex flex-col items-center justify-between p-4 bg-white border rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300"
       >
         <div className="duration-300 overflow-hidden rounded-lg">
-          <img
-            src={product.images[0] || "https://placehold.co/600x400/EEE/31343C"}
-            alt={product.productName}
-            className="w-48 h-48 object-cover transition-transform duration-300 ease-in-out transform hover:scale-110"
-          />
+          <Link to={`/product/${product._id}`}>
+            <img
+              src={product.images[0]}
+              alt={product.productName}
+              className={`cursor-pointer w-48 h-48 object-cover transition-transform duration-300 ease-in-out transform hover:scale-110`}
+            />
+          </Link>
         </div>
 
-        <div className="text-center mt-4">
-          <p className="text-lg font-semibold text-gray-800">
+        <div className="text-center mt-4 space-y-2">
+          <p className="text-lg font-semibold text-gray-800 leading-tight line-clamp-2">
             {product.productName}
           </p>
-          <p className="text-sm text-gray-500">{product.brand}</p>
-          <p className="text-sm text-gray-700 font-medium mt-2">
+          <p className="text-sm text-gray-500 uppercase tracking-wide">
+            {product.brand}
+          </p>
+          <p className="text-md font-semibold text-[#fa5592]">
             {product.volumes[0].price} грн.
           </p>
         </div>
@@ -141,6 +148,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           </button>
         </div>
       </div>
+
       {isModalOpen && (
         <ProductModal
           productId={product._id}

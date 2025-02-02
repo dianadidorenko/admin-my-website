@@ -59,27 +59,38 @@ const ProductModal: React.FC<ProductModalProps> = ({ productId, onClose }) => {
           </h2>
           <p className="text-gray-500">{product?.brand}</p>
           <p className="text-medium mt-2 text-center">{product?.description}</p>
-
           {product?.volumes.length === 1 ? (
-            <div className="flex flex-col items-center gap-2 mt-4">
-              <p className="text-lg font-semibold">
-                Цена: {selectedVolume?.price || product?.volumes[0]?.price} ₴
+            <div className="flex flex-col items-center gap-2 mt-4 bg-gray-100 p-3 rounded-lg shadow-sm w-full">
+              <p className="text-lg font-semibold text-gray-800">
+                💰 Цена:
+                <span className="text-[#fa5592] font-bold ml-1">
+                  {selectedVolume?.price || product?.volumes[0]?.price} ₴
+                </span>
               </p>
-              <p className="text-lg font-semibold">
-                {selectedVolume?.volume || product?.volumes[0]?.volume} мл
+              <p className="text-md font-medium text-gray-700">
+                📦 Объем:
+                <span className="font-semibold ml-1">
+                  {selectedVolume?.volume || product?.volumes[0]?.volume} мл
+                </span>
               </p>
             </div>
           ) : (
-            <div className="w-full flex flex-col items-center">
-              <p className="text-lg font-semibold my-6">
-                Цена: {selectedVolume?.price || product?.volumes[0]?.price} ₴
+            <div className="w-full flex flex-col items-center bg-gray-100 p-2 pb-6 rounded-lg shadow-sm mt-3">
+              <p className="text-lg font-semibold text-gray-800 my-4">
+                💰 Цена:
+                <span className="text-[#fa5592] font-bold ml-1">
+                  {selectedVolume?.price || product?.volumes[0]?.price} ₴
+                </span>
               </p>
-              <label htmlFor="volume" className="mb-2 font-medium">
-                Выберите объем:
+              <label
+                htmlFor="volume"
+                className="mb-2 text-md font-medium text-gray-700"
+              >
+                🔽 Выберите объем:
               </label>
               <select
                 id="volume"
-                className="w-[150px] p-2 border rounded-lg shadow-sm"
+                className="w-[160px] p-2 border rounded-lg shadow-sm bg-white text-gray-800 focus:ring-2 focus:ring-[#fa5592] focus:outline-none"
                 onChange={handleVolumeChange}
               >
                 {product?.volumes.map((item, index) => (
@@ -92,12 +103,12 @@ const ProductModal: React.FC<ProductModalProps> = ({ productId, onClose }) => {
           )}
 
           <div className="flex gap-4 mt-6">
-            <button className="px-6 py-2 bg-pink-500 hover:bg-pink-600 text-white rounded-lg shadow-md">
+            <button className="px-6 py-2 bg-pink-500 hover:bg-pink-600 text-white rounded-lg shadow-md duration-300">
               Купить
             </button>
             <button
               onClick={onClose}
-              className="px-6 py-2 bg-gray-300 hover:bg-gray-400 text-black rounded-lg shadow-md"
+              className="px-6 py-2 bg-gray-200 hover:bg-gray-300 text-black rounded-lg shadow-md duration-300"
             >
               Отмена
             </button>

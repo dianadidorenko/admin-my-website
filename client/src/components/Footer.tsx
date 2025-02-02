@@ -12,8 +12,7 @@ import { Link } from "react-router-dom";
 const Footer = () => {
   return (
     <Container>
-      <div className="bg-black/85 p-6 text-white rounded-[40px]">
-        {/* Фоновое изображение */}
+      <div id="contacts" className="bg-black/85 p-6 text-white rounded-[40px]">
         <img
           src={image}
           alt="footer background"
@@ -21,7 +20,6 @@ const Footer = () => {
         />
 
         <div className="py-14 gap-10 lg:gap-0 flex flex-col lg:flex-row justify-between">
-          {/* Левая часть - Вопросы */}
           <div className="flex flex-col gap-4">
             <p className="uppercase text-[28px] leading-[30px] text-white">
               Остались вопросы? <br /> Не нашли нужный товар?
@@ -38,7 +36,6 @@ const Footer = () => {
             </div>
           </div>
 
-          {/* Правая часть - Контакты и ссылки */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
             {/* Контакты */}
             <div className="flex flex-col gap-3">

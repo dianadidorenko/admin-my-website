@@ -34,7 +34,10 @@ const Podborki = () => {
   return (
     <Container>
       <div className="bg-black/85 p-6 text-white rounded-[40px] relative">
-        <h1 className="text-center text-[26px] leading-[35px] md:text-[42px] md:leading-[42px] tracking-[-0.5px] uppercase font-bold mb-[30px] md:mb-[50px]">
+        <h1
+          id="podborki"
+          className="text-center text-[26px] leading-[35px] md:text-[42px] md:leading-[42px] tracking-[-0.5px] uppercase font-bold mb-[30px] md:mb-[50px]"
+        >
           Собрали для вас подборки <br /> лучших средств
         </h1>
         <Swiper

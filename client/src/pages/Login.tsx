@@ -2,7 +2,7 @@ import { useContext, useState } from "react";
 import axios from "axios";
 import { config } from "../../config";
 import { StoreContext } from "../context/storeContext";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 
 const Login = () => {
@@ -73,13 +73,16 @@ const Login = () => {
             className="shadow-lg appearance-none border-2 border-gray-300 rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition duration-200"
           />
         </div>
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col items-center justify-center">
           <button
             type="submit"
             className="bg-gradient-to-r from-blue-300 to-purple-600 hover:from-blue-300 hover:to-purple-300 text-white font-semibold py-3 px-6 rounded-xl shadow-md focus:outline-none focus:ring-2 focus:ring-blue-300 transition duration-200"
           >
             Войти
           </button>
+          <Link to={"/register"} className="block underline pt-4 text-[14px]">
+            Зарегистрироваться
+          </Link>
         </div>
       </form>
     </div>
