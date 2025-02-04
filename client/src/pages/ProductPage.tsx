@@ -8,11 +8,7 @@ import { Heart } from "lucide-react";
 import { StoreContext } from "@/context/storeContext";
 import toast from "react-hot-toast";
 
-interface ProductCardProps {
-  product: Product;
-}
-
-const ProductPage: React.FC<ProductCardProps> = () => {
+const ProductPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [product, setProduct] = useState<Product | null>(null);
   const [isFavorite, setIsFavorite] = useState(false);
