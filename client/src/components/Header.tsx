@@ -17,6 +17,7 @@ import logo from "../assets/logo.svg";
 import axios from "axios";
 import { config } from "../../config";
 import { Product } from "@/lib/types";
+import toast from "react-hot-toast";
 
 const Header = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -31,6 +32,7 @@ const Header = () => {
 
   const {
     token,
+    setToken,
     cartItems,
     fetchCart,
     calculateTotalPrice,
@@ -40,13 +42,51 @@ const Header = () => {
   } = useContext(StoreContext)!;
   const navigate = useNavigate();
 
-  // ✅ Функция загрузки всех товаров
+  // Проверка сессии пользователя
+  const checkAuth = () => {
+    if (!token) return;
+    axios
+      .get(`${config.baseUrl}/users/profile`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .catch((error) => {
+        if (error.response?.status === 401) {
+          setToken(null);
+          localStorage.removeItem("token");
+          toast.error("Сессия истекла. Пожалуйста, войдите снова.");
+          navigate("/login");
+        }
+      });
+  };
+
+  // Функция загрузки всех товаров
   const fetchProducts = async () => {
     try {
       const response = await axios.get(`${config.baseUrl}/products`);
       setProducts(response.data.data || []);
     } catch (error) {
       console.error("Ошибка загрузки всех товаров:", error);
+    }
+  };
+
+  // Загрузка избранного
+  const fetchWishlist = async () => {
+    if (!token) return;
+
+    try {
+      const response = await axios.get(`${config?.baseUrl}/users/wishlist`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setWishlist(response.data.wishlist || []);
+    } catch (error: any) {
+      if (error.response?.status === 401) {
+        setToken(null);
+        localStorage.removeItem("token");
+        toast.error("Сессия истекла. Пожалуйста, войдите снова.");
+        navigate("/login");
+      } else {
+        console.error("Ошибка получения списка избранного:", error);
+      }
     }
   };
 
@@ -85,29 +125,6 @@ const Header = () => {
     };
   }, []);
 
-  // Получение списка всех товаров, избранных товаров и содержимого корзины
-  useEffect(() => {
-    const fetchWishlist = async () => {
-      if (!token) return;
-
-      try {
-        const response = await axios.get(`${config?.baseUrl}/users/wishlist`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        setWishlist(response.data.wishlist || []);
-      } catch (error) {
-        console.error("Ошибка получения списка избранного:", error);
-      }
-    };
-
-    fetchProducts();
-    fetchWishlist();
-    fetchCart();
-  }, [token]);
-
   // Удаление товара из избранного
   const handleRemoveFromWishlist = async (productId: string) => {
     if (!token) {
@@ -131,7 +148,7 @@ const Header = () => {
     }
   };
 
-  // 🔍 Фильтрация товаров на клиенте (без запроса на сервер)
+  // Фильтрация товаров на клиенте (без запроса на сервер)
   const handleSearch = (query: string) => {
     setSearchQuery(query);
     if (!query.trim()) {
@@ -156,6 +173,14 @@ const Header = () => {
     setSearchResults([]);
   };
 
+  // Загрузка данных
+  useEffect(() => {
+    fetchProducts();
+    fetchWishlist();
+    fetchCart();
+    checkAuth();
+  }, [token]);
+
   return (
     <header
       className={`${
@@ -169,7 +194,7 @@ const Header = () => {
           onClick={() => handleScrollToSection("catalog")}
           className="hidden sm:flex gap-1 items-center hover:text-[#fa5592] duration-300"
         >
-          <TbLayoutGridFilled fill="black" size={16} className="mb-[3px]" />
+          <TbLayoutGridFilled fill="black" size={16} className="mb-[1px]" />
           Каталог
         </button>
         <Link
@@ -180,7 +205,7 @@ const Header = () => {
             fill="#fa5592"
             color="#fa5592"
             size={15}
-            className="mb-[3px]"
+            className="mb-[1px]"
           />
           Хиты
         </Link>
@@ -219,20 +244,24 @@ const Header = () => {
         <button onClick={() => setOpenSearch(true)} className="cursor-pointer">
           <Search size={20} className="text-gray-700 hover:text-gray-900" />
         </button>
+
+        {/* Избранное (отображаем только если есть токен) */}
         <div className="flex items-center gap-2 cursor-pointer">
           <Heart
             size={15}
             fill="#fa5592"
             color="#fa5592"
-            className="mb-[3px]"
+            className="mb-[1px]"
             onClick={() => setOpenFavorite(!openFavorite)}
           />
           <span className="flex items-center">
             <span>[</span>
-            <span>{wishlist.length}</span>
+            <span>{token ? wishlist.length : 0}</span>
             <span>]</span>
           </span>
         </div>
+
+        {/* Корзина (отображаем только если есть токен) */}
         <div className="flex items-center gap-2 cursor-pointer">
           <div
             className="hover:text-[#fa5592] duration-300"
@@ -242,10 +271,11 @@ const Header = () => {
           </div>
           <span className="flex items-center">
             <span>[</span>
-            <span>{cartItems.length}</span>
+            <span>{token ? cartItems.length : 0}</span>
             <span>]</span>
           </span>
         </div>
+
         <div
           className="cursor-pointer shadow hover:shadow-md hover:shadow-pink-400 duration-300 rounded-full p-[2px] bg-gradient-to-r from-purple-100 to-pink-300"
           onClick={() => (token ? navigate("/profile") : navigate("/login"))}
@@ -254,6 +284,7 @@ const Header = () => {
         </div>
       </div>
 
+      {/* Попап избранного */}
       <Drawer open={openFavorite} onOpenChange={setOpenFavorite}>
         <DrawerContent>
           <DrawerClose asChild>
@@ -275,11 +306,17 @@ const Header = () => {
                       key={item._id}
                       className="relative py-2 border-b flex flex-col lg:flex-row items-center gap-2"
                     >
-                      <img
-                        src={item.images?.[0]}
-                        alt={item.productName}
-                        className="w-[120px] h-[120px]"
-                      />
+                      <Link
+                        to={`/product/${item._id}`}
+                        onClick={() => setOpenFavorite(false)}
+                      >
+                        <img
+                          src={item.images?.[0]}
+                          alt={item.productName}
+                          className="w-[120px] h-[120px]"
+                        />
+                      </Link>
+
                       <div className="max-w-[300px] flex flex-col items-center lg:items-start gap-1">
                         <span className="font-semibold text-center lg:text-start">
                           {item.productName}
@@ -293,7 +330,7 @@ const Header = () => {
 
                       <X
                         size={17}
-                        className="absolute top-[-10px] right-0 cursor-pointer"
+                        className="absolute top-[10px] right-[5px] cursor-pointer"
                         onClick={() => handleRemoveFromWishlist(item._id)}
                       />
                     </p>
@@ -305,6 +342,7 @@ const Header = () => {
         </DrawerContent>
       </Drawer>
 
+      {/* Попап корзины */}
       <Drawer open={openCart} onOpenChange={setOpenCart}>
         <DrawerContent>
           <DrawerClose asChild>
@@ -328,11 +366,16 @@ const Header = () => {
                       key={item.product._id}
                       className="relative flex items-center gap-4 p-4 border rounded-lg shadow-sm bg-white"
                     >
-                      <img
-                        src={item.product.images?.[0]}
-                        alt={item.product.productName}
-                        className="w-[90px] h-[90px] object-cover"
-                      />
+                      <Link
+                        to={`/product/${item.product._id}`}
+                        onClick={() => setOpenCart(false)}
+                      >
+                        <img
+                          src={item.product.images?.[0]}
+                          alt={item.product.productName}
+                          className="w-[90px] h-[90px] object-cover cursor-pointer"
+                        />
+                      </Link>
 
                       <div className="flex-1 space-y-2">
                         <h3 className="text-lg font-semibold">

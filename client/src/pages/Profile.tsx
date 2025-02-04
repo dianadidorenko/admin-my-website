@@ -41,6 +41,8 @@ interface User {
 }
 
 const Profile: React.FC = () => {
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(true);
+
   const { token, setToken } = useContext(StoreContext)!;
   const navigate = useNavigate();
   const [id, setId] = useState<string>("");
@@ -72,6 +74,7 @@ const Profile: React.FC = () => {
 
       if (!token) {
         toast.error("Unauthorized. Please log in.");
+        setIsAuthenticated(false);
         return;
       }
 
@@ -99,9 +102,15 @@ const Profile: React.FC = () => {
       } else {
         toast.error(response.data.message);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error fetching user info:", error);
-      toast.error("Something went wrong, please try again.");
+
+      if (error.response?.status === 401) {
+        setIsAuthenticated(false);
+        localStorage.removeItem("token");
+        setToken(null);
+        toast.error("Session expired. Please log in again.");
+      }
     }
   };
 
@@ -223,6 +232,18 @@ const Profile: React.FC = () => {
   };
 
   const renderContent = () => {
+    if (!isAuthenticated) {
+      return (
+        <div className="text-center text-red-500 font-semibold">
+          Ваша сессия истекла. Пожалуйста,{" "}
+          <a href="/login" className="text-blue-500 underline">
+            авторизуйтесь снова
+          </a>
+          .
+        </div>
+      );
+    }
+
     switch (activeTab) {
       case "profile":
         return (

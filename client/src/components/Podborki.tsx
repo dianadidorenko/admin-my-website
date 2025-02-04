@@ -72,7 +72,7 @@ const Podborki = () => {
                     {item.name}
                   </p>
                   <Link
-                    to={`${config?.baseUrl}/${item.redirectName}`}
+                    to={`/${item.redirectName}`}
                     className="flex items-center justify-center gap-1 text-[12px] md:text-[14px] text-white font-medium border border-white rounded-[90px] py-[1px] px-[6px]"
                   >
                     <Plus

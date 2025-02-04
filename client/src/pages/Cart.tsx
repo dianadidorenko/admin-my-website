@@ -1,11 +1,13 @@
 import { StoreContext } from "@/context/storeContext";
 import { Minus, Plus, X } from "lucide-react";
 import { useContext, useEffect } from "react";
-import { Link } from "react-router-dom";
+import toast from "react-hot-toast";
+import { Link, useNavigate } from "react-router-dom";
 
 const Cart = () => {
   const {
     token,
+    setToken,
     cartItems,
     fetchCart,
     calculateTotalPrice,
@@ -14,9 +16,45 @@ const Cart = () => {
     removeFromCart,
   } = useContext(StoreContext)!;
 
+  const navigate = useNavigate();
+
   useEffect(() => {
-    fetchCart();
+    if (!token) {
+      toast.error("Сессия истекла. Пожалуйста, войдите снова.");
+      navigate("/login");
+      return;
+    }
+
+    const fetchData = async () => {
+      try {
+        fetchCart();
+      } catch (error: any) {
+        console.error("Ошибка при получении корзины:", error);
+
+        if (error.response?.status === 401) {
+          setToken(null);
+          localStorage.removeItem("token");
+          toast.error("Сессия истекла. Войдите снова.");
+          navigate("/login");
+        }
+      }
+    };
+
+    fetchData();
   }, [token]);
+
+  if (!token) {
+    return (
+      <div className="text-center text-red-500 text-lg font-medium py-6">
+        Пожалуйста,{" "}
+        <Link to="/login" className="text-blue-500 underline">
+          войдите
+        </Link>
+        , чтобы просмотреть корзину.
+      </div>
+    );
+  }
+
   return (
     <div>
       {cartItems.length === 0 ? (

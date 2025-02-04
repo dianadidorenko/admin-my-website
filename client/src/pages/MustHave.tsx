@@ -1,16 +1,17 @@
 import { useEffect, useState } from "react";
-import { Flame, Plus } from "lucide-react";
+import { ArrowLeftCircle } from "lucide-react";
 import axios from "axios";
 import toast from "react-hot-toast";
 
 import { config } from "../../config";
-import Container from "./Container";
-import { Link } from "react-router-dom";
-import ProductCard from "./ProductCard";
+import Container from "../components/Container";
+import ProductCard from "../components//ProductCard";
 import { Product } from "@/lib/types";
+import { useNavigate } from "react-router-dom";
 
-const Hits = () => {
+const MustHave = () => {
   const [products, setProducts] = useState<Product[]>([]);
+  const navigate = useNavigate();
 
   const filteredProducts = products.filter((item) => item.hit);
 
@@ -33,29 +34,36 @@ const Hits = () => {
     getHits();
   }, []);
 
+  // Переход к якорной ссылке
+  const handleScrollToSection = (id: string) => {
+    if (window.location.pathname !== "/") {
+      navigate("/");
+    }
+
+    setTimeout(() => {
+      const section = document.getElementById(id);
+      if (section) {
+        section.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }, 300);
+  };
+
   return (
-    <Container>
-      <div className="flex items-center justify-between">
+    <Container className="my-[50px]">
+      <div className="flex flex-col">
+        <button
+          onClick={() => handleScrollToSection("podborki")}
+          className="flex items-center gap-2 mb-[60px] text-[14px]"
+        >
+          <ArrowLeftCircle fill="black" color="white" size={20} />
+          Назад к подборкам
+        </button>
         <h1
           id="novelties"
-          className="text-[28px] md:text-[42px] font-semibold uppercase md:tracking-[3px] flex items-center gap-2"
+          className="text-[28px] md:text-[42px] font-semibold uppercase md:tracking-[3px] flex items-center gap-2 leading-[40px]"
         >
-          <div className="bg-black/75 py-[4px] px-1 md:py-[7px] md:px-2">
-            <Flame
-              fill="white"
-              color="white"
-              className="w-[12px] h-[11px] md:w-[15px] md:h-[15px] mb-[3px]"
-            />
-          </div>
-          Хиты
+          Ежедневный маст-хэв
         </h1>
-        <Link
-          to={"#catalog"}
-          className="flex items-center gap-1 text-[15px] font-medium border border-[#1e1e1e] rounded-[90px] py-[1px] px-[6px]"
-        >
-          <Plus fill="#fa5592" color="#fa5592" size={15} className="mb-[2px]" />
-          Все хиты
-        </Link>
       </div>
 
       <div className="w-full grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-[40px]">
@@ -67,4 +75,4 @@ const Hits = () => {
   );
 };
 
-export default Hits;
+export default MustHave;

@@ -17,6 +17,11 @@ import Info from "./pages/Info.tsx";
 import Profile from "./pages/Profile.tsx";
 import Cart from "./pages/Cart.tsx";
 import ProductPage from "./pages/ProductPage.tsx";
+import MustHave from "./pages/MustHave.tsx";
+import Travel from "./pages/Travel.tsx";
+import OilySkin from "./pages/OilySkin.tsx";
+import AntiAging from "./pages/AntiAging.tsx";
+import HairRestoration from "./pages/HairRestoration.tsx";
 
 const RouterLayout = () => {
   return (
@@ -63,6 +68,26 @@ const router = createBrowserRouter([
       {
         path: "/product/:id",
         element: <ProductPage />,
+      },
+      {
+        path: "/must-have",
+        element: <MustHave />,
+      },
+      {
+        path: "/travel",
+        element: <Travel />,
+      },
+      {
+        path: "/oily-skin",
+        element: <OilySkin />,
+      },
+      {
+        path: "/anti-aging",
+        element: <AntiAging />,
+      },
+      {
+        path: "/hair-restoration",
+        element: <HairRestoration />,
       },
     ],
   },

@@ -6,10 +6,12 @@ const express = require("express");
 require("dotenv").config();
 
 const router = express.Router();
+const verifyToken = require("../middleware/auth");
 
+// Функция для генерации JWT-токена
 const creaToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: "1d" });
-}; 
+};
 
 router.post("/login", async (req, res) => {
   const { email, password } = req.body;
@@ -88,7 +90,7 @@ router.post("/register", async (req, res) => {
 });
 
 // Получить всех юзеров
-router.get("/all", async ( areq, res) => {
+router.get("/all", async (areq, res) => {
   try {
     const users = await User.find();
     res.json({ success: true, users });
@@ -99,17 +101,9 @@ router.get("/all", async ( areq, res) => {
 });
 
 // Получить определенного юзера
-router.get("/profile", async (req, res) => {
-  const token = req.headers.authorization?.split(" ")[1];
-
-  if (!token) {
-    return res.status(401).json({ success: false, message: "Unauthorized" });
-  }
-
+router.get("/profile", verifyToken, async (req, res) => {
   try {
-    // Расшифровка токена
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await User.findById(decoded.id);
+    const user = await User.findById(req.user.id);
 
     if (!user) {
       return res
@@ -140,17 +134,9 @@ router.get("/profile", async (req, res) => {
 });
 
 // Удалить определенного юзера
-router.delete("/delete", async (req, res) => {
-  const token = req.headers.authorization?.split(" ")[1];
-
-  if (!token) {
-    return res.status(401).json({ success: false, message: "Unauthorized" });
-  }
-
+router.delete("/delete", verifyToken, async (req, res) => {
   try {
-    // Расшифровка токена
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await User.findById(decoded.id);
+    const user = await User.findById(req.user.id);
 
     if (!user) {
       return res
@@ -158,7 +144,6 @@ router.delete("/delete", async (req, res) => {
         .json({ success: false, message: "User not found" });
     }
 
-    // Удаление пользователя
     await User.findByIdAndDelete(decoded.id);
 
     res.status(200).json({
@@ -172,15 +157,14 @@ router.delete("/delete", async (req, res) => {
 });
 
 // Обновление информации о юзере
-router.put("/update/:id", async (req, res) => {
-  const { id } = req.params; // Получение ID пользователя из URL
-  const updatedData = req.body; // Получение данных из тела запроса
+router.put("/update/:id", verifyToken, async (req, res) => {
+  const { id } = req.params;
+  const updatedData = req.body;
 
   try {
-    // Находим пользователя по ID и обновляем его
     const updatedUser = await User.findByIdAndUpdate(id, updatedData, {
-      new: true, // Возвращает обновлённый документ
-      runValidators: true, // Проверяет валидаторы, указанные в схеме
+      new: true,
+      runValidators: true,
     });
 
     if (!updatedUser) {
@@ -200,19 +184,11 @@ router.put("/update/:id", async (req, res) => {
   }
 });
 
-router.post("/wishlist/add", async (req, res) => {
+router.post("/wishlist/add", verifyToken, async (req, res) => {
   const { productId } = req.body;
-  const token = req.headers.authorization?.split(" ")[1];
-
-  console.log(productId);
-
-  if (!token) {
-    return res.status(401).json({ success: false, message: "Unauthorized" });
-  }
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await User.findById(decoded.id);
+    const user = await User.findById(req.user.id);
 
     if (!user) {
       return res
@@ -242,17 +218,11 @@ router.post("/wishlist/add", async (req, res) => {
   }
 });
 
-router.delete("/wishlist/remove/:productId", async (req, res) => {
+router.delete("/wishlist/remove/:productId", verifyToken, async (req, res) => {
   const { productId } = req.params;
-  const token = req.headers.authorization?.split(" ")[1];
-
-  if (!token) {
-    return res.status(401).json({ success: false, message: "Unauthorized" });
-  }
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await User.findById(decoded.id);
+    const user = await User.findById(req.user.id);
 
     if (!user) {
       return res
@@ -276,16 +246,9 @@ router.delete("/wishlist/remove/:productId", async (req, res) => {
   }
 });
 
-router.get("/wishlist", async (req, res) => {
-  const token = req.headers.authorization?.split(" ")[1];
-
-  if (!token) {
-    return res.status(401).json({ success: false, message: "Unauthorized" });
-  }
-
+router.get("/wishlist", verifyToken, async (req, res) => {
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await User.findById(decoded.id).populate("wishlist");
+    const user = await User.findById(req.user.id).populate("wishlist");
 
     if (!user) {
       return res
